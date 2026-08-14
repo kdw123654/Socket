@@ -86,3 +86,34 @@ prain-backend/
 ├── .env                          # 환경 변수 (비밀키, DB 접속 정보 - Git 제외)
 ├── requirements.txt              # 파이썬 의존성 패키지 목록
 └── README.md                     # 프로젝트 문서
+
+# 가상환경 생성
+python -m venv venv
+
+# 가상환경 활성화 (Windows PowerShell)
+.\venv\Scripts\Activate.ps1
+
+# 가상환경 활성화 (Mac/Linux)
+source venv/bin/activate
+
+# 패키지 설치
+pip install -r requirements.txt
+
+
+# .env 양식
+PROJECT_NAME="Prain Backend"
+API_V1_STR="/api/v1"
+SECRET_KEY="YOUR_SUPER_SECRET_JWT_KEY"
+ALGORITHM="HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES=1440
+TOKEN_ENCRYPTION_KEY="FERNET_ENCRYPTION_KEY"
+DATABASE_URL="sqlite+aiosqlite:///./prain.db"
+
+# OAuth Keys
+DISCORD_CLIENT_ID="YOUR_DISCORD_CLIENT_ID"
+DISCORD_CLIENT_SECRET="YOUR_DISCORD_CLIENT_SECRET"
+GITHUB_CLIENT_ID="YOUR_GITHUB_CLIENT_ID"
+GITHUB_CLIENT_SECRET="YOUR_GITHUB_CLIENT_SECRET"
+
+# 루트 폴더(Socket) 위치에서 실행 시
+uvicorn app.main:app --app-dir backend --reload
