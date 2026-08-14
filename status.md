@@ -18,7 +18,7 @@
 | **Phase 4** | 외부 툴 연동: OAuth 2.0 인증 플로우 | ⏳ 대기 | GitHub, Discord, Figma, Notion 인가 코드 및 콜백 처리 |
 | **Phase 4** | 외부 툴 연동: 토큰 Vault 영속화 | ⏳ 대기 | 발급받은 외부 토큰을 Fernet으로 암호화하여 `UserIntegration` 저장 |
 | **Phase 5** | API 프록시 서비스: 외부 데이터 동기화 | ⏳ 대기 | `httpx` 및 공식 SDK를 이용해 이슈, PR, 파일 목록 대리 조회 |
-| **Phase 6** | AI 모듈: 회의록 자동 요약 및 챗봇 | ⏳ 대기 | OpenAI LLM 파이프라인 연동 및 Action Item 추출 기능 |
+| **Phase 6** | AI 모듈: 회의록 자동 요약 및 챗봇 | ✅ 완료 | OpenAI LLM 파이프라인 연동 및 Action Item 추출 기능 |
 | **Phase 7** | 배포 및 최종 통합 테스트 | ⏳ 대기 | Docker 컨테이너화, 클라우드 서버 배포 및 프론트 연동 테스트 |
 
 ---
@@ -53,10 +53,6 @@
   * 암호화된 토큰을 복호화하여 GitHub(이슈, PR, 커밋), Figma(파일/컴포넌트 데이터), Notion(페이지 블록) 등의 API를 병렬로 호출(`async/await`).
   * 프론트엔드가 여러 툴의 데이터를 지연 없이 한 대시보드에서 볼 수 있도록 가공하여 전달.
 
-### 6: AI 회의록 요약 및 챗봇 모듈 (`services/ai_service.py`)
-* **OpenAI LLM 연동:**
-  * 사용자가 작성한 회의록 메모나 디스코드 채팅 로그를 입력받아 핵심 요약본 및 **Action Item(할 일 목록)**을 자동으로 추출해 주는 API 구현 (`POST /api/v1/ai/summarize`).
-
 ### 7: 프로덕션 배포 및 최종 통합
 * **Docker화:** `Dockerfile` 및 `docker-compose.yml`을 작성하여 백엔드 서버와 DB(PostgreSQL) 환경을 컨테이너로 패키징.
 * **클라우드 배포:** AWS, GCP, 또는 PaaS 플랫폼에 서버를 배포하고 프론트엔드 팀원과 최종 End-to-End 연동 테스트 진행.
@@ -72,5 +68,5 @@
 | `GET` | `/api/v1/workspace/layout` | 대시보드 화면 분할 레이아웃 조회 | ✅ 완료 (인증 필요) |
 | `PUT` | `/api/v1/workspace/layout` | 대시보드 화면 분할 레이아웃 저장 | ✅ 완료 (인증 필요) |
 | `GET` | `/api/v1/integrations/...` | GitHub/Discord OAuth 연동 | ⏳ 예정 |
-| `GET` | `/api/v1/ai/summarize` | AI 회의록 자동 요약 | ⏳ 예정 |
+| `GET` | `/api/v1/ai/summarize` | AI 회의록 자동 요약 | ✅ 완료 (인증 필요)  |
 | `GET` | `/health` | 서버 헬스체크 | ✅ 완료 (공개) |
