@@ -1,13 +1,34 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from app.core.config import settings
+from app.core.database import engine, Base
+
+# DB 테이블 모델 로드 (서버 기동 시 자동 테이블 생성을 위함)
+import app.models.user
+import app.models.workspace
+
+# API 라우터 가져오기
+from app.api.v1.auth import router as auth_router
+from app.api.v1.workspace import router as workspace_router
+
+
+# 서버 시작/종료 라이프사이클 (DB 테이블 자동 생성)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    openapi_url=f"{settings.API_V1_STR}/openapi.json"
+    openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    lifespan=lifespan
 )
 
-# 프론트엔드 연동을 위한 CORS 허용
+# CORS 미들웨어 설정
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -16,9 +37,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# 라우터 등록
+app.include_router(auth_router, prefix=f"{settings.API_V1_STR}/auth", tags=["Auth"])
+app.include_router(workspace_router, prefix=f"{settings.API_V1_STR}/workspace", tags=["Workspace"])
+
+
 @app.get("/health")
 async def health_check():
     return {"status": "ok", "app": settings.PROJECT_NAME}
+
 
 if __name__ == "__main__":
     import uvicorn
