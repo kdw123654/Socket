@@ -1,9 +1,12 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
+from app.api.v1.ai import router as ai_router
 from app.core.config import settings
 from app.core.database import engine, Base
+from app.models.user import User
+from app.models.workspace import WorkspaceLayout
+from app.models.meeting_note import MeetingNote
 
 # DB 테이블 모델 로드 (서버 기동 시 자동 테이블 생성을 위함)
 import app.models.user
@@ -40,6 +43,9 @@ app.add_middleware(
 # 라우터 등록
 app.include_router(auth_router, prefix=f"{settings.API_V1_STR}/auth", tags=["Auth"])
 app.include_router(workspace_router, prefix=f"{settings.API_V1_STR}/workspace", tags=["Workspace"])
+app.include_router(auth_router, prefix=f"{settings.API_V1_STR}/auth", tags=["Auth"])
+app.include_router(workspace_router, prefix=f"{settings.API_V1_STR}/workspace", tags=["Workspace"])
+app.include_router(ai_router, prefix=f"{settings.API_V1_STR}/ai", tags=["AI Meeting Notes"])
 
 
 @app.get("/health")
