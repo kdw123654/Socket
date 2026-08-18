@@ -113,6 +113,11 @@
           <span id="discord-user-tag">Discord 연결됨</span>
         </div>
 
+        <div id="figma-badge" class="hidden flex items-center gap-1.5 px-3 py-1.5 bg-[#A259FF]/10 text-[#A259FF] border border-[#A259FF]/20 rounded-xl text-xs font-semibold">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span id="figma-user-tag">Figma 연결됨</span>
+        </div>
+
         <span id="user-nickname-tag" class="text-xs font-bold text-slate-600 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">사용자</span>
         <button onclick="handleLogout()" class="p-2 text-slate-400 hover:text-rose-500 hover:bg-white rounded-xl transition" title="로그아웃">
           <i data-lucide="log-out" class="w-4 h-4"></i>
@@ -145,6 +150,10 @@
             <button onclick="openToolModal()" class="w-full mt-4 py-2.5 border border-slate-200 bg-slate-50 hover:bg-slate-100 rounded-2xl text-xs font-bold transition flex items-center justify-center gap-1.5">
               <i data-lucide="search" class="w-3.5 h-3.5"></i>
               <span>+ 협업 도구 검색/추가</span>
+            </button>
+            <button onclick="connectFigmaOAuth()" id="btn-figma-connect" class="w-full mt-2 py-2.5 border border-[#A259FF]/30 bg-[#A259FF]/5 hover:bg-[#A259FF]/10 text-[#A259FF] rounded-2xl text-xs font-bold transition flex items-center justify-center gap-1.5">
+              <i data-lucide="figma" class="w-3.5 h-3.5"></i>
+              <span>Figma 연동하기</span>
             </button>
           </div>
 
@@ -548,6 +557,7 @@
         document.getElementById('main-app').classList.remove('hidden');
         document.getElementById('user-nickname-tag').innerText = user.nickname || user.email;
         checkDiscord();
+        checkFigma();
         renderUserTools();
         renderCommunityPosts();
         loadMeetings();
@@ -928,6 +938,36 @@
       });
       const data = await res.json();
       if (data.authorize_url) window.open(data.authorize_url, 'discord_auth', 'width=580,height=720');
+    }
+
+    // --- [9. Figma 연동] ---
+    async function checkFigma() {
+      const token = localStorage.getItem('prain_token');
+      if (!token) return;
+      try {
+        const res = await fetch('/api/v1/integrations/figma/status', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.connected) {
+          document.getElementById('figma-badge').classList.remove('hidden');
+          document.getElementById('figma-user-tag').innerText = data.username ? `Figma: ${data.username}` : 'Figma 연결됨';
+        }
+      } catch (e) {}
+    }
+
+    async function connectFigmaOAuth() {
+      const token = localStorage.getItem('prain_token');
+      if (!token) return alert('먼저 이메일 로그인을 완료해주세요.');
+      try {
+        const res = await fetch('/api/v1/integrations/figma/authorize', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.authorize_url) window.open(data.authorize_url, 'figma_auth', 'width=580,height=720');
+      } catch (err) {
+        alert('Figma 인증 URL을 가져올 수 없습니다.');
+      }
     }
 
     // 초기 실행

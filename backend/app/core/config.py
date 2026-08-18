@@ -16,6 +16,10 @@ class Settings(BaseSettings):
     DISCORD_CLIENT_SECRET: str = ""
     DISCORD_REDIRECT_URI: str = "http://127.0.0.1:8000/api/v1/integrations/discord/callback"
 
+    FIGMA_CLIENT_ID: str = "QuOgPFYe2uoQSvCRPE0Vu0"
+    FIGMA_CLIENT_SECRET: str = "vGP2rf1ST1pAgyEx70o2I9fskTHdGurId9lWWy9N"
+    FIGMA_REDIRECT_URI: str = "http://127.0.0.1:8000/api/v1/integrations/figma/callback"
+
     class Config:
         env_file = ".env"
         extra = "ignore"
