@@ -16,6 +16,16 @@ class Settings(BaseSettings):
     DISCORD_CLIENT_SECRET: str = ""
     DISCORD_REDIRECT_URI: str = "http://127.0.0.1:8000/api/v1/integrations/discord/callback"
 
+    # GitHub OAuth
+    GITHUB_CLIENT_ID: str = ""
+    GITHUB_CLIENT_SECRET: str = ""
+    GITHUB_REDIRECT_URI: str = "http://127.0.0.1:8000/api/v1/integrations/github/callback"
+
+    # Notion OAuth
+    NOTION_CLIENT_ID: str = ""
+    NOTION_CLIENT_SECRET: str = ""
+    NOTION_REDIRECT_URI: str = "http://127.0.0.1:8000/api/v1/integrations/notion/callback"
+
     class Config:
         env_file = ".env"
         extra = "ignore"

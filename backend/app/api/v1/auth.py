@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.core.database import get_db
@@ -35,6 +36,38 @@ async def login(user_in: UserLogin, db: AsyncSession = Depends(get_db)):
 
     access_token = create_access_token(data={"sub": str(user.id), "email": user.email})
     return {"access_token": access_token, "token_type": "bearer", "user": user}
+
+@router.post("/token")
+async def swagger_login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(
+        select(User).where(User.email == form_data.username)
+    )
+    user = result.scalars().first()
+
+    if (
+        not user
+        or not user.hashed_password
+        or not verify_password(form_data.password, user.hashed_password)
+    ):
+        raise HTTPException(
+            status_code=401,
+            detail="이메일 또는 비밀번호가 올바르지 않습니다."
+        )
+
+    access_token = create_access_token(
+        data={
+            "sub": str(user.id),
+            "email": user.email
+        }
+    )
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer"
+    }
 
 @router.get("/me", response_model=UserResponse)
 async def get_me(current_user: User = Depends(get_current_user)):
