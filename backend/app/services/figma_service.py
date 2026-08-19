@@ -14,6 +14,16 @@ FIGMA_OAUTH_TOKEN_URL = "https://api.figma.com/v1/oauth/token"
 FIGMA_OAUTH_REFRESH_URL = "https://api.figma.com/v1/oauth/refresh"
 
 
+def _figma_auth_header(token: str) -> dict:
+    """토큰 형태에 따라 적절한 인증 헤더를 반환합니다.
+    PAT (figd_ 접두사) → X-Figma-Token
+    OAuth 토큰 (figu_ 접두사 또는 기타) → Authorization: Bearer
+    """
+    if token.startswith("figd_"):
+        return {"X-Figma-Token": token}
+    return {"Authorization": f"Bearer {token}"}
+
+
 def _get_basic_auth_header() -> str:
     """client_id:client_secret를 Base64로 인코딩한 Basic Auth 헤더를 생성합니다."""
     credentials = f"{settings.FIGMA_CLIENT_ID}:{settings.FIGMA_CLIENT_SECRET}"
@@ -49,7 +59,7 @@ class FigmaService:
         async with httpx.AsyncClient(timeout=10.0) as client:
             res = await client.get(
                 f"{FIGMA_API_BASE}/v1/me",
-                headers={"Authorization": f"Bearer {access_token}"},
+                headers=_figma_auth_header(access_token),
             )
             if res.status_code != 200:
                 raise ValueError(f"Figma Profile Error: {res.text}")
@@ -110,3 +120,126 @@ class FigmaService:
             return new_access
         except Exception:
             return None
+
+    @staticmethod
+    async def get_file_comments(access_token: str, file_key: str) -> list:
+        """Figma 파일의 코멘트 목록을 조회합니다."""
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            res = await client.get(
+                f"{FIGMA_API_BASE}/v1/files/{file_key}/comments",
+                headers=_figma_auth_header(access_token),
+            )
+            if res.status_code != 200:
+                raise ValueError(f"Figma Comments Error: {res.text}")
+            data = res.json()
+            return data.get("comments", [])
+
+    @staticmethod
+    async def get_file_frames(access_token: str, file_key: str) -> list:
+        """Figma 파일의 최상위 프레임(FRAME) 노드 목록을 반환합니다."""
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            res = await client.get(
+                f"{FIGMA_API_BASE}/v1/files/{file_key}?depth=2",
+                headers=_figma_auth_header(access_token),
+            )
+            if res.status_code != 200:
+                raise ValueError(f"Figma File Error: {res.text}")
+            data = res.json()
+
+        frames = []
+        document = data.get("document", {})
+        for page in document.get("children", []):
+            for node in page.get("children", []):
+                if node.get("type") == "FRAME":
+                    frames.append({
+                        "id": node["id"],
+                        "name": node.get("name", "Untitled"),
+                        "page": page.get("name", ""),
+                    })
+        return frames
+
+    @staticmethod
+    async def get_frame_image_url(access_token: str, file_key: str, node_id: str) -> str:
+        """특정 프레임의 렌더링된 이미지 URL을 가져옵니다."""
+        async with httpx.AsyncClient(timeout=20.0) as client:
+            res = await client.get(
+                f"{FIGMA_API_BASE}/v1/images/{file_key}",
+                params={"ids": node_id, "format": "png", "scale": 2},
+                headers=_figma_auth_header(access_token),
+            )
+            if res.status_code != 200:
+                raise ValueError(f"Figma Image Error: {res.text}")
+            data = res.json()
+            images = data.get("images", {})
+            image_url = images.get(node_id)
+            if not image_url:
+                raise ValueError("프레임 이미지를 생성할 수 없습니다.")
+            return image_url
+
+    @staticmethod
+    async def get_frames_with_thumbnails(access_token: str, file_key: str) -> list:
+        """프레임 목록과 각 프레임의 썸네일 이미지 URL을 함께 반환합니다."""
+        # 1. 파일 구조에서 프레임 목록 추출
+        async with httpx.AsyncClient(timeout=20.0) as client:
+            res = await client.get(
+                f"{FIGMA_API_BASE}/v1/files/{file_key}?depth=2",
+                headers=_figma_auth_header(access_token),
+            )
+            if res.status_code != 200:
+                raise ValueError(f"Figma File Error: {res.text}")
+            data = res.json()
+
+        frames = []
+        document = data.get("document", {})
+        for page in document.get("children", []):
+            for node in page.get("children", []):
+                if node.get("type") == "FRAME":
+                    frames.append({
+                        "id": node["id"],
+                        "name": node.get("name", "Untitled"),
+                        "page": page.get("name", ""),
+                    })
+
+        if not frames:
+            return []
+
+        # 2. 모든 프레임의 썸네일 이미지를 한 번에 요청
+        node_ids = ",".join([f["id"] for f in frames])
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            res = await client.get(
+                f"{FIGMA_API_BASE}/v1/images/{file_key}",
+                params={"ids": node_ids, "format": "png", "scale": 1},
+                headers=_figma_auth_header(access_token),
+            )
+            if res.status_code == 200:
+                images = res.json().get("images", {})
+                for frame in frames:
+                    frame["thumbnail"] = images.get(frame["id"], "")
+
+        return frames
+
+    @staticmethod
+    async def get_team_projects(access_token: str, team_id: str) -> list:
+        """팀의 프로젝트(폴더) 목록을 조회합니다."""
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            res = await client.get(
+                f"{FIGMA_API_BASE}/v1/teams/{team_id}/folders",
+                headers=_figma_auth_header(access_token),
+            )
+            if res.status_code != 200:
+                raise ValueError(f"Figma Teams Error: {res.text}")
+            data = res.json()
+            return data.get("folders", data.get("projects", []))
+
+    @staticmethod
+    async def get_project_files(access_token: str, project_id: str) -> list:
+        """프로젝트(폴더) 내의 파일 목록을 조회합니다."""
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            res = await client.get(
+                f"{FIGMA_API_BASE}/v1/folders/{project_id}/files",
+                headers=_figma_auth_header(access_token),
+            )
+            if res.status_code != 200:
+                raise ValueError(f"Figma Project Files Error: {res.text}")
+            data = res.json()
+            return data.get("files", [])
