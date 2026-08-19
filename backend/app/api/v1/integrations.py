@@ -16,6 +16,7 @@ from app.services.discord_service import DiscordService
 from app.schemas.integration import OAuthAuthorizeResponse
 
 from app.services.github_service import GitHubService
+from app.services.notion_service import NotionService
 
 router = APIRouter()
 
@@ -330,3 +331,404 @@ async def get_github_repositories(
         }
         for repo in repos
     ]
+
+@router.get("/github/repos/{owner}/{repo}/issues")
+async def get_github_repository_issues(
+    owner: str,
+    repo: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    access_token = await GitHubService.get_valid_access_token(
+        str(current_user.id),
+        db
+    )
+
+    if not access_token:
+        raise HTTPException(
+            status_code=401,
+            detail="GitHub가 연동되어 있지 않습니다."
+        )
+
+    try:
+        issues = await GitHubService.get_repository_issues(
+            access_token,
+            owner,
+            repo
+        )
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+
+    # GitHub Issues API에는 Pull Request도 포함될 수 있으므로 제외
+    return [
+        {
+            "id": issue.get("id"),
+            "number": issue.get("number"),
+            "title": issue.get("title"),
+            "state": issue.get("state"),
+            "html_url": issue.get("html_url"),
+            "created_at": issue.get("created_at"),
+            "updated_at": issue.get("updated_at"),
+            "user": (
+                issue.get("user", {}).get("login")
+                if issue.get("user")
+                else None
+            ),
+        }
+        for issue in issues
+        if "pull_request" not in issue
+    ]
+
+
+@router.get("/github/repos/{owner}/{repo}/pulls")
+async def get_github_repository_pull_requests(
+    owner: str,
+    repo: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    access_token = await GitHubService.get_valid_access_token(
+        str(current_user.id),
+        db
+    )
+
+    if not access_token:
+        raise HTTPException(
+            status_code=401,
+            detail="GitHub가 연동되어 있지 않습니다."
+        )
+
+    try:
+        pulls = await GitHubService.get_repository_pull_requests(
+            access_token,
+            owner,
+            repo
+        )
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+
+    return [
+        {
+            "id": pull.get("id"),
+            "number": pull.get("number"),
+            "title": pull.get("title"),
+            "state": pull.get("state"),
+            "html_url": pull.get("html_url"),
+            "created_at": pull.get("created_at"),
+            "updated_at": pull.get("updated_at"),
+            "user": (
+                pull.get("user", {}).get("login")
+                if pull.get("user")
+                else None
+            ),
+        }
+        for pull in pulls
+    ]
+
+@router.get("/github/repos/{owner}/{repo}/commits")
+async def get_github_repository_commits(
+    owner: str,
+    repo: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    access_token = await GitHubService.get_valid_access_token(
+        str(current_user.id),
+        db
+    )
+
+    if not access_token:
+        raise HTTPException(
+            status_code=401,
+            detail="GitHub가 연동되어 있지 않습니다."
+        )
+
+    try:
+        commits = await GitHubService.get_repository_commits(
+            access_token,
+            owner,
+            repo
+        )
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+
+    return [
+        {
+            "sha": commit.get("sha"),
+            "html_url": commit.get("html_url"),
+            "message": (
+                commit.get("commit", {}).get("message")
+                if commit.get("commit")
+                else None
+            ),
+            "author": (
+                commit.get("commit", {})
+                .get("author", {})
+                .get("name")
+                if commit.get("commit")
+                else None
+            ),
+            "date": (
+                commit.get("commit", {})
+                .get("author", {})
+                .get("date")
+                if commit.get("commit")
+                else None
+            ),
+        }
+        for commit in commits
+    ]
+
+@router.get("/notion/authorize", response_model=OAuthAuthorizeResponse)
+async def get_notion_auth_url(
+    current_user: User = Depends(get_current_user)
+):
+    state_payload = {
+        "user_id": str(current_user.id),
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=10)
+    }
+
+    state_token = jwt.encode(
+        state_payload,
+        settings.SECRET_KEY,
+        algorithm=settings.ALGORITHM
+    )
+
+    params = {
+        "client_id": settings.NOTION_CLIENT_ID,
+        "response_type": "code",
+        "owner": "user",
+        "redirect_uri": settings.NOTION_REDIRECT_URI,
+        "state": state_token,
+    }
+
+    return {
+        "authorize_url":
+        f"https://api.notion.com/v1/oauth/authorize?"
+        f"{urllib.parse.urlencode(params)}"
+    }
+
+
+@router.get("/notion/callback")
+async def notion_oauth_callback(
+    code: str = Query(...),
+    state: str = Query(...),
+    db: AsyncSession = Depends(get_db)
+):
+    try:
+        payload = jwt.decode(
+            state,
+            settings.SECRET_KEY,
+            algorithms=[settings.ALGORITHM]
+        )
+
+        user_id = payload.get("user_id")
+
+    except Exception:
+        raise HTTPException(
+            status_code=400,
+            detail="유효하지 않은 State입니다."
+        )
+
+    try:
+        token_data = await NotionService.exchange_code_for_token(code)
+        access_token = token_data["access_token"]
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+
+    result = await db.execute(
+        select(UserIntegration).where(
+            UserIntegration.user_id == user_id,
+            UserIntegration.provider == "notion"
+        )
+    )
+
+    integration = result.scalars().first()
+
+    workspace_id = token_data.get("workspace_id")
+    workspace_name = token_data.get("workspace_name")
+
+    if integration:
+        integration.provider_user_id = workspace_id
+        integration.provider_username = workspace_name
+        integration.encrypted_access_token = encrypt_token(access_token)
+
+    else:
+        integration = UserIntegration(
+            user_id=user_id,
+            provider="notion",
+            provider_user_id=workspace_id,
+            provider_username=workspace_name,
+            encrypted_access_token=encrypt_token(access_token),
+        )
+
+        db.add(integration)
+
+    await db.commit()
+
+    return HTMLResponse(content="""
+        <script>
+            alert("Notion 연동이 완료되었습니다!");
+
+            if (window.opener) {
+                window.opener.location.reload();
+                window.close();
+            }
+            else {
+                window.location.href = "/";
+            }
+        </script>
+    """)
+
+@router.get("/notion/status")
+async def get_notion_status(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    valid_token = await NotionService.get_valid_access_token(
+        str(current_user.id),
+        db
+    )
+
+    if not valid_token:
+        return {
+            "connected": False
+        }
+
+    result = await db.execute(
+        select(UserIntegration).where(
+            UserIntegration.user_id == current_user.id,
+            UserIntegration.provider == "notion"
+        )
+    )
+
+    integration = result.scalars().first()
+
+    return {
+        "connected": True,
+        "workspace_name": (
+            integration.provider_username
+            if integration
+            else None
+        ),
+        "workspace_id": (
+            integration.provider_user_id
+            if integration
+            else None
+        )
+    }
+
+@router.delete("/notion")
+async def disconnect_notion(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(
+        select(UserIntegration).where(
+            UserIntegration.user_id == current_user.id,
+            UserIntegration.provider == "notion"
+        )
+    )
+
+    integration = result.scalars().first()
+
+    if integration:
+        await db.delete(integration)
+        await db.commit()
+
+    return {
+        "message": "Notion 연동이 해제되었습니다."
+    }
+
+@router.get("/notion/pages")
+async def get_notion_pages(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    access_token = await NotionService.get_valid_access_token(
+        str(current_user.id),
+        db
+    )
+
+    if not access_token:
+        raise HTTPException(
+            status_code=401,
+            detail="Notion이 연동되어 있지 않습니다."
+        )
+
+    try:
+        pages = await NotionService.get_pages(access_token)
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+
+    return [
+    {
+        "id": page.get("id"),
+        "object": page.get("object"),
+        "title": (
+            page.get("properties", {})
+            .get("title", {})
+            .get("title", [{}])[0]
+            .get("plain_text")
+            if page.get("properties", {})
+                .get("title", {})
+                .get("title")
+            else None
+        ),
+        "url": page.get("url"),
+        "created_time": page.get("created_time"),
+        "last_edited_time": page.get("last_edited_time"),
+    }
+    for page in pages
+]
+
+@router.get("/notion/pages/{page_id}/blocks")
+async def get_notion_page_blocks(
+    page_id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    access_token = await NotionService.get_valid_access_token(
+        str(current_user.id),
+        db
+    )
+
+    if not access_token:
+        raise HTTPException(
+            status_code=401,
+            detail="Notion이 연동되어 있지 않습니다."
+        )
+
+    try:
+        blocks = await NotionService.get_blocks_recursive(
+            access_token,
+            page_id
+        )
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+
+    return NotionService.format_blocks(blocks)
