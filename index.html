@@ -10,7 +10,7 @@
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-    * { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; }
+    * { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; box-sizing: border-box; }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #f1f5f9; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
@@ -23,7 +23,7 @@
 <body class="bg-[#F6F8FC] text-slate-800 h-screen w-screen overflow-hidden select-none flex flex-col">
 
   <!-- ========================================================= -->
-  <!-- 🚪 1. 초기 진입 화면: 로그인 / 회원가입 (탭 분리) -->
+  <!-- 🚪 1. 초기 진입 화면: 로그인 / 회원가입 -->
   <!-- ========================================================= -->
   <div id="auth-screen" class="h-full w-full flex flex-col items-center justify-center p-4 bg-[#F6F8FC]">
     <div class="w-full max-w-sm flex flex-col items-center">
@@ -94,19 +94,18 @@
 
 
   <!-- ========================================================= -->
-  <!-- 🖥️ 2. 메인 앱 화면 (상단 글로벌 탭 바 + 5대 탭 뷰) -->
+  <!-- 🖥️ 2. 메인 앱 화면 -->
   <!-- ========================================================= -->
   <div id="main-app" class="hidden h-full w-full flex flex-col overflow-hidden">
     
     <!-- 2-1. 상단 글로벌 네비게이션 헤더 -->
-    <header class="h-16 bg-[#F6F8FC] px-8 flex items-center justify-between shrink-0 z-20">
+    <header class="h-16 bg-[#F6F8FC] border-b border-slate-200/80 px-8 flex items-center justify-between shrink-0 z-20">
       <div class="flex items-center gap-3 cursor-pointer" onclick="switchMainTab('dashboard')">
         <div class="w-7 h-7 rounded-xl bg-black flex items-center justify-center font-black text-white text-xs shadow-sm">P</div>
         <span class="font-black text-base text-slate-900 tracking-tight">Prain</span>
       </div>
 
       <!-- 상단 메인 5대 탭 -->
-      
       <nav class="flex items-center gap-2 bg-transparent">
         <button onclick="switchMainTab('dashboard')" id="tab-nav-dashboard" class="px-5 py-2 rounded-2xl text-xs font-bold bg-[#EAF4FF] text-[#2BA6FF] transition">
           대시보드
@@ -147,15 +146,15 @@
       </div>
     </header>
 
-    <div class="border-b border-slate-200/80 mx-8"></div>
-
     <!-- 2-2. 메인 컨텐츠 영역 -->
     <main class="flex-1 overflow-hidden p-6 relative">
 
       <!-- ========================================================= -->
       <!-- 📌 [탭 1: 대시보드] -->
       <!-- ========================================================= -->
-      <section id="view-dashboard" class="h-full max-w-5xl mx-auto flex flex-col gap-5 overflow-y-auto pr-1">
+      <section id="view-dashboard" class="h-full max-w-5xl mx-auto flex flex-col gap-5 overflow-y-auto pr-1 pb-8">
+        
+        <!-- 상단 2열: 진행도 & 활동 피드 -->
         <div class="flex gap-5 items-stretch">
           <!-- 좌측: 진행도 & 연동 도구 -->
           <div class="w-1/3 bg-white p-6 rounded-3xl border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col justify-between">
@@ -169,134 +168,6 @@
               <div class="text-[11px] font-bold text-slate-400 mb-3 uppercase tracking-wider">주요 연동 상태</div>
               <div id="dashboard-tool-status-list" class="space-y-2 text-xs font-medium"></div>
             </div>
-            <button onclick="openToolModal()" class="w-full mt-4 py-2.5 border border-slate-200 bg-slate-50 hover:bg-slate-100 rounded-2xl text-xs font-bold transition flex items-center justify-center gap-1.5">
-              <i data-lucide="search" class="w-3.5 h-3.5"></i>
-              <span>+ 협업 도구 검색/추가</span>
-            </button>
-            <button onclick="connectFigmaOAuth()" id="btn-figma-connect" class="w-full mt-2 py-2.5 border border-[#A259FF]/30 bg-[#A259FF]/5 hover:bg-[#A259FF]/10 text-[#A259FF] rounded-2xl text-xs font-bold transition flex items-center justify-center gap-1.5">
-              <i data-lucide="figma" class="w-3.5 h-3.5"></i>
-              <span>Figma 연동하기</span>
-            </button>
-
-            <button onclick="connectGitHubOAuth()"
-              id="btn-github-connect"
-              class="w-full mt-2 py-2.5 border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 rounded-2xl text-xs font-bold transition flex items-center justify-center gap-1.5">
-              <i data-lucide="github" class="w-3.5 h-3.5"></i>
-              <span>GitHub 연동하기</span>
-            </button>
-            
-            <button onclick="connectNotionOAuth()"
-              id="btn-notion-connect"
-              class="w-full mt-2 py-2.5 border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 rounded-2xl text-xs font-bold transition flex items-center justify-center gap-1.5">
-              <i data-lucide="notebook" class="w-3.5 h-3.5"></i>
-              <span>Notion 연동하기</span>
-            </button>
-
-          </div>
-          <!-- 중앙: 활동 피드 -->
-          <div class="w-2/3 bg-white p-6 rounded-3xl border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col">
-            <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
-              <h3 class="text-xs font-bold text-slate-900">통합 활동 피드</h3>
-              <div class="flex items-center gap-2">
-                <input id="figma-file-key-input" type="text" placeholder="Figma URL 붙여넣기" class="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-[11px] w-44 focus:outline-none focus:border-[#A259FF]" />
-                <button onclick="loadFigmaComments()" class="px-2.5 py-1 bg-[#A259FF] hover:bg-[#8B3FD9] text-white text-[11px] font-bold rounded-lg transition">피드 불러오기</button>
-              </div>
-            </div>
-            <div id="activity-feed-list" class="space-y-3 flex-1 overflow-y-auto">
-              <div class="flex items-start gap-3 pb-2.5 border-b border-slate-50">
-                <div class="p-2 bg-slate-100 rounded-xl text-slate-700"><i data-lucide="git-commit" class="w-4 h-4"></i></div>
-                <div>
-                  <div class="text-xs font-bold text-slate-800">map-api 커밋 완료</div>
-                  <div class="text-[11px] text-slate-400 mt-0.5">GitHub · 12분 전</div>
-                </div>
-              </div>
-              <div class="flex items-start gap-3">
-                <div class="p-2 bg-[#EAF4FF] rounded-xl text-[#2BA6FF]"><i data-lucide="message-circle" class="w-4 h-4"></i></div>
-                <div>
-                  <div class="text-xs font-bold text-slate-800">카테고리 분류 및 회의록 공유</div>
-                  <div class="text-[11px] text-slate-400 mt-0.5">Discord #기획 · 40분 전</div>
-                </div>
-              </div>
-            </div>
-          </div>
-          </div>
-        </div>
-
-        <!-- 하단: 내 등록 프로그램 그리드 -->
-        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
-          <div class="flex items-center justify-between mb-4">
-            <div>
-              <h3 class="text-sm font-black text-slate-900">내 워크스페이스 프로그램</h3>
-              <p class="text-xs text-slate-400 mt-0.5">클릭하면 멀티 작업창에서 2분할 화면으로 즉시 실행됩니다.</p>
-            </div>
-            <button onclick="openToolModal()" class="px-3.5 py-1.5 bg-[#2BA6FF] hover:bg-[#1E96ED] text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-sm">
-              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-              <span>도구 추가</span>
-            </button>
-          </div>
-          <div id="installed-tools-grid" class="grid grid-cols-5 gap-3.5"></div>
-        </div>
-
-        <!-- 협업 도구 AI 탭 -->
-        <div class="flex items-center gap-2 mt-3 mb-3 ml-4">
-
-          <button
-            id="tab-figma"
-            onclick="switchAITool('figma')"
-            class="ai-tool-tab px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 text-white transition">
-            Figma
-          </button>
-
-          <button
-            id="tab-github"
-            onclick="switchAITool('github')"
-            class="ai-tool-tab px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-500 hover:bg-slate-200 transition">
-            GitHub
-          </button>
-
-          <button
-            id="tab-notion"
-            onclick="switchAITool('notion')"
-            class="ai-tool-tab px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-500 hover:bg-slate-200 transition">
-            Notion
-          </button>
-
-        </div>
-
-        <!-- Figma AI 프레임 분석 -->
-        <div
-          id="ai-tool-figma"
-          class="bg-white p-6 rounded-3xl border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
-          <div class="flex items-center justify-between mb-4">
-            <div>
-              <h3 class="text-sm font-black text-slate-900">🎨 Figma 디자인 → AI 구현 가이드</h3>
-              <p class="text-xs text-slate-400 mt-0.5">Figma 파일의 프레임을 선택하면 AI가 구현 방법을 분석해줍니다.</p>
-            </div>
-            <div id="figma-pat-status" class="flex items-center gap-2">
-              <span id="figma-pat-badge" class="hidden px-3 py-1 bg-[#A259FF]/10 text-[#A259FF] text-[11px] font-bold rounded-lg"></span>
-              <button onclick="showFigmaPATModal()" id="btn-figma-pat" class="px-3 py-1.5 bg-[#A259FF] hover:bg-[#8B3FD9] text-white text-xs font-bold rounded-xl transition">Figma 연동</button>
-            </div>
-          </div>
-
-          <!-- Figma URL 입력 (PAT 연동 후에만 동작) -->
-          <div class="flex gap-3 mb-4">
-            <input id="figma-analyze-file-key" type="text" placeholder="Figma 파일 URL 붙여넣기" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#A259FF]" />
-            <button onclick="loadFigmaEmbed()" class="px-4 py-2 bg-[#A259FF] hover:bg-[#8B3FD9] text-white text-xs font-bold rounded-xl transition shrink-0">파일 열기</button>
-          </div>
-
-          <!-- Figma 임베드 뷰어 -->
-          <div id="figma-embed-container" class="hidden mb-4 rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
-            <iframe id="figma-embed-iframe" class="w-full" style="height: 450px; border: none;" allowfullscreen></iframe>
-            <div class="p-3 bg-slate-50 border-t border-slate-200 flex justify-end">
-              <button onclick="summarizeFigmaFile()" class="px-4 py-2 bg-[#A259FF] hover:bg-[#8B3FD9] text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5">
-                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-                AI 요약
-              </button>
-            </div>
-          </div>
-
-          <!-- 프레임 목록 (썸네일) -->
-          <div id="figma-frames-list" class="grid grid-cols-3 gap-2"></div>
 
           <!-- AI 분석 결과 -->
           <div id="figma-analysis-result" class="hidden bg-slate-50 border border-slate-200 rounded-2xl p-5">
@@ -552,13 +423,12 @@
             </button>
           </form>
         </div>
-
       </section>
 
       <!-- ========================================================= -->
       <!-- 📝 [탭 4: 회의 기록] -->
       <!-- ========================================================= -->
-      <section id="view-meetings" class="hidden h-full max-w-2xl mx-auto flex flex-col overflow-y-auto pr-1">
+      <section id="view-meetings" class="hidden h-full max-w-2xl mx-auto flex flex-col overflow-y-auto pr-1 pb-8">
         <div class="mb-4">
           <h2 id="current-meeting-title" class="text-2xl font-bold text-slate-900">8/6 기획 회의</h2>
           <div class="text-xs text-slate-400 mt-1 font-medium">42분 · 참여자 4명</div>
@@ -603,7 +473,7 @@
       <!-- ========================================================= -->
       <!-- 👥 [탭 5: 커뮤니티] -->
       <!-- ========================================================= -->
-      <section id="view-community" class="hidden h-full max-w-2xl mx-auto flex flex-col">
+      <section id="view-community" class="hidden h-full max-w-2xl mx-auto flex flex-col pb-8">
         <div class="flex items-center justify-between mb-5">
           <h2 class="text-xl font-bold text-slate-900">커뮤니티</h2>
           <button onclick="openNewPostModal()" class="px-5 py-2 bg-[#2BA6FF] hover:bg-[#1E96ED] text-white text-xs font-bold rounded-2xl transition shadow-sm">
@@ -747,11 +617,9 @@
 
 
   <!-- ========================================================= -->
-  <!-- 6. 자바스크립트 엔진 -->
+  <!-- 7. 자바스크립트 엔진 -->
   <!-- ========================================================= -->
   <script>
-    lucide.createIcons();
-
     // 📚 협업 도구 카탈로그
     const TOOL_CATALOG = [
       { id: 'github', name: 'GitHub', icon: 'github', url: 'https://github.com', desc: '코드 & 이슈 관리' },
@@ -762,9 +630,9 @@
     ];
 
     let userTools = JSON.parse(localStorage.getItem('prain_installed_tools')) || [
-      { name: 'GitHub', icon: 'github', url: 'https://github.com', desc: '코드 & 이슈 관리' },
-      { name: 'Discord', icon: 'message-square', url: 'https://discord.com/app', desc: '커뮤니케이션' },
-      { name: 'Figma', icon: 'figma', url: 'https://www.figma.com', desc: 'UI/UX 디자인' }
+      { id: 'github', name: 'GitHub', icon: 'github', url: 'https://github.com', desc: '코드 & 이슈 관리' },
+      { id: 'discord', name: 'Discord', icon: 'message-square', url: 'https://discord.com/app', desc: '커뮤니케이션' },
+      { id: 'figma', name: 'Figma', icon: 'figma', url: 'https://www.figma.com', desc: 'UI/UX 디자인' }
     ];
 
     // 커뮤니티 게시글 데이터
@@ -806,11 +674,12 @@
         renderUserTools();
         renderCommunityPosts();
         loadMeetings();
+        switchMainTab('dashboard');
       } else {
         document.getElementById('auth-screen').classList.remove('hidden');
         document.getElementById('main-app').classList.add('hidden');
       }
-      lucide.createIcons();
+      setTimeout(() => lucide.createIcons(), 50);
     }
 
     async function handleLogin(e) {
@@ -858,7 +727,6 @@
       const errorDiv = document.getElementById('auth-error');
       errorDiv.classList.add('hidden');
 
-      // 유효성 검증
       if (nickname.length < 2) {
         errorDiv.innerText = '닉네임은 2자 이상 입력해주세요.';
         errorDiv.classList.remove('hidden');
@@ -890,7 +758,6 @@
           throw new Error(signupData.detail || '회원가입에 실패했습니다.');
         }
 
-        // 가입 성공 → 자동 로그인
         const loginRes = await fetch('/api/v1/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -955,6 +822,8 @@
       tabs.forEach(t => {
         const navBtn = document.getElementById(`tab-nav-${t}`);
         const viewSec = document.getElementById(`view-${t}`);
+        if (!navBtn || !viewSec) return;
+        
         if (t === tabName) {
           navBtn.className = "px-5 py-2 rounded-2xl text-xs font-bold bg-[#EAF4FF] text-[#2BA6FF] transition";
           viewSec.classList.remove('hidden');
@@ -964,7 +833,7 @@
         }
       });
       if (tabName === 'meetings' || tabName === 'workspace-view') loadMeetings();
-      lucide.createIcons();
+      setTimeout(() => lucide.createIcons(), 50);
     }
 
     // --- [3. 스마트 URL 임베드 & 프록시 라우터] ---
@@ -1149,7 +1018,7 @@
       document.getElementById('post-content').value = '';
     }
 
-    // --- [6. 회의록 관리 (AI 백엔드 실시간 연동)] ---
+    // --- [6. 회의록 관리 (AI 백엔드 연동)] ---
     function openUploadModal(type) { document.getElementById('upload-modal').classList.remove('hidden'); }
     function closeUploadModal() { document.getElementById('upload-modal').classList.add('hidden'); }
 
@@ -1247,7 +1116,7 @@
           </div>
         `).join('');
       }
-      lucide.createIcons();
+      setTimeout(() => lucide.createIcons(), 50);
     }
 
     function openToolModal() { document.getElementById('tool-modal').classList.remove('hidden'); renderSearchResults(); }
@@ -1272,7 +1141,7 @@
           </div>
         `;
       }).join('');
-      lucide.createIcons();
+      setTimeout(() => lucide.createIcons(), 50);
     }
 
     function addTool(id) {
@@ -1317,14 +1186,21 @@
       if (data.authorize_url) window.open(data.authorize_url, 'discord_auth', 'width=580,height=720');
     }
 
-    // --- [9. Figma PAT 연동 (한 번만 등록하면 자동 사용)] ---
+    // --- [9. Figma 연동] ---
     function showFigmaPATModal() { document.getElementById('figma-pat-modal').classList.remove('hidden'); }
     function closeFigmaPATModal() { document.getElementById('figma-pat-modal').classList.add('hidden'); }
+
+    function disconnectFigma() {
+      localStorage.removeItem('figma_pat');
+      document.getElementById('figma-badge').classList.add('hidden');
+      checkFigmaPAT();
+    }
 
     async function checkFigmaPAT() {
       const token = localStorage.getItem('prain_token');
       if (!token) return;
-      const badge = document.getElementById('figma-pat-badge');
+      const badge = document.getElementById('figma-badge');
+      const patBadge = document.getElementById('figma-pat-badge');
       const btn = document.getElementById('btn-figma-pat');
       try {
         const res = await fetch('/api/v1/integrations/figma/pat-status', {
@@ -1332,16 +1208,21 @@
         });
         const data = await res.json();
         if (data.connected) {
-          badge.classList.remove('hidden');
-          badge.innerText = `Figma: ${data.username || '연결됨'}`;
-          btn.innerText = '재연동';
+          if (badge) badge.classList.remove('hidden');
+          if (patBadge) {
+            patBadge.classList.remove('hidden');
+            patBadge.innerText = `Figma: ${data.username || '연결됨'}`;
+          }
+          if (btn) btn.innerText = '재연동';
         } else {
-          badge.classList.add('hidden');
-          btn.innerText = 'Figma 연동';
+          if (badge) badge.classList.add('hidden');
+          if (patBadge) patBadge.classList.add('hidden');
+          if (btn) btn.innerText = 'Figma 연동';
         }
       } catch (e) {
-        badge.classList.add('hidden');
-        btn.innerText = 'Figma 연동';
+        if (badge) badge.classList.add('hidden');
+        if (patBadge) patBadge.classList.add('hidden');
+        if (btn) btn.innerText = 'Figma 연동';
       }
     }
 
@@ -1360,13 +1241,39 @@
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.detail || '연동 실패');
-        alert(data.message);
+        alert(data.message || '연동되었습니다.');
         closeFigmaPATModal();
         checkFigmaPAT();
       } catch (err) {
         alert(err.message);
       } finally {
         btn.innerText = '연동하기'; btn.disabled = false;
+      }
+    }
+
+    async function loadFigmaComments() {
+      const fileKeyInput = document.getElementById('figma-file-key-input').value.trim();
+      if (!fileKeyInput) return alert('Figma URL 또는 파일 키를 입력해주세요.');
+      const fileKey = extractFigmaFileKey(fileKeyInput);
+      const token = localStorage.getItem('prain_token');
+      const feedList = document.getElementById('activity-feed-list');
+      try {
+        const res = await fetch(`/api/v1/integrations/figma/file/${fileKey}`, {
+          headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        });
+        const data = await res.json();
+        feedList.innerHTML = `
+          <div class="flex items-start gap-3 pb-2.5 border-b border-slate-50">
+            <div class="p-2 bg-[#A259FF]/10 text-[#A259FF] rounded-xl"><i data-lucide="figma" class="w-4 h-4"></i></div>
+            <div>
+              <div class="text-xs font-bold text-slate-800">${data.name || 'Figma 디자인 업데이트'}</div>
+              <div class="text-[11px] text-slate-400 mt-0.5">Figma · 방금 전</div>
+            </div>
+          </div>
+        ` + feedList.innerHTML;
+        setTimeout(() => lucide.createIcons(), 50);
+      } catch (e) {
+        alert('피드를 불러오지 못했습니다.');
       }
     }
 
@@ -1381,12 +1288,11 @@
       const rawInput = document.getElementById('figma-analyze-file-key').value.trim();
       if (!rawInput) return alert('Figma URL을 입력해주세요.');
 
-      // Figma 임베드 뷰어 표시
       const embedUrl = `https://www.figma.com/embed?embed_host=prain&url=${encodeURIComponent(rawInput)}`;
       document.getElementById('figma-embed-iframe').src = embedUrl;
       document.getElementById('figma-embed-container').classList.remove('hidden');
       document.getElementById('figma-analysis-result').classList.add('hidden');
-      lucide.createIcons();
+      setTimeout(() => lucide.createIcons(), 50);
     }
 
     async function summarizeFigmaFile() {
@@ -1419,649 +1325,6 @@
         contentDiv.innerHTML = `<div class="text-rose-500">${err.message}</div>`;
       }
     }
-
-    async function loadFigmaFrames() {
-      const token = localStorage.getItem('prain_token');
-      const rawInput = document.getElementById('figma-analyze-file-key').value.trim();
-      if (!token) return alert('로그인이 필요합니다.');
-      if (!rawInput) return alert('Figma URL을 입력해주세요.');
-
-      const fileKey = extractFigmaFileKey(rawInput);
-      const framesList = document.getElementById('figma-frames-list');
-      framesList.innerHTML = '<div class="col-span-3 text-center py-4 text-slate-400 text-xs">프레임 불러오는 중...</div>';
-      document.getElementById('figma-analysis-result').classList.add('hidden');
-
-      try {
-        const res = await fetch('/api/v1/integrations/figma/frames', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-          body: JSON.stringify({ file_key: fileKey })
-        });
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({ detail: `서버 에러 (${res.status})` }));
-          throw new Error(errData.detail || '조회 실패');
-        }
-        const data = await res.json();
-
-        if (!data.frames || data.frames.length === 0) {
-          framesList.innerHTML = '<div class="col-span-3 text-center py-4 text-slate-400 text-xs">프레임이 없습니다.</div>';
-          return;
-        }
-
-        framesList.innerHTML = data.frames.map(f => `
-          <button onclick="analyzeFrame('${fileKey}', '${f.id}', '${f.name}')" class="bg-white hover:bg-[#A259FF]/5 border border-slate-200 hover:border-[#A259FF]/30 rounded-xl overflow-hidden text-left transition group">
-            ${f.thumbnail ? `<img src="${f.thumbnail}" class="w-full h-28 object-cover bg-slate-100" />` : `<div class="w-full h-28 bg-slate-100 flex items-center justify-center text-slate-300 text-xs">미리보기 없음</div>`}
-            <div class="p-2.5">
-              <div class="text-xs font-bold text-slate-800 truncate">${f.name}</div>
-              <div class="text-[10px] text-slate-400 mt-0.5">${f.page}</div>
-            </div>
-          </button>
-        `).join('');
-      } catch (err) {
-        framesList.innerHTML = `<div class="col-span-3 text-center py-4 text-rose-400 text-xs">${err.message}</div>`;
-      }
-    }
-
-    async function analyzeFrame(fileKey, nodeId, frameName) {
-      const token = localStorage.getItem('prain_token');
-      const resultDiv = document.getElementById('figma-analysis-result');
-      const contentDiv = document.getElementById('figma-analysis-content');
-
-      resultDiv.classList.remove('hidden');
-      contentDiv.innerHTML = '<div class="text-center py-8 text-slate-400">AI가 디자인을 분석 중입니다... (20~30초 소요)</div>';
-
-      try {
-        const res = await fetch('/api/v1/integrations/figma/analyze', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-          body: JSON.stringify({ file_key: fileKey, node_id: nodeId, frame_name: frameName })
-        });
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({ detail: `서버 에러 (${res.status})` }));
-          throw new Error(errData.detail || '분석 실패');
-        }
-        const data = await res.json();
-        contentDiv.innerHTML = marked.parse(data.analysis);
-      } catch (err) {
-        contentDiv.innerHTML = `<div class="text-rose-500">${err.message}</div>`;
-      }
-    }
-
-    // --- [11. GitHub OAuth 연동] ---
-    async function checkGitHub() {
-  const token = localStorage.getItem('prain_token');
-  if (!token) return;
-
-  try {
-    const res = await fetch('/api/v1/integrations/github/status', {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    const data = await res.json();
-
-    console.log('GitHub status:', data);
-
-    if (data.connected) {
-      console.log(`GitHub 연결됨: ${data.username || ''}`);
-    }
-  } catch (e) {
-    console.error('GitHub 상태 확인 실패:', e);
-  }
-}
-
-async function connectGitHubOAuth() {
-  const token = localStorage.getItem('prain_token');
-
-  if (!token) {
-    return alert('먼저 이메일 로그인을 완료해주세요.');
-  }
-
-  try {
-    const res = await fetch('/api/v1/integrations/github/authorize', {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.detail || 'GitHub 연동에 실패했습니다.');
-    }
-
-    if (data.authorize_url) {
-      window.open(
-        data.authorize_url,
-        'github_auth',
-        'width=580,height=720'
-      );
-    }
-  } catch (err) {
-    alert(err.message);
-  }
-}
-
-async function loadGitHubRepos() {
-  const token = localStorage.getItem('prain_token');
-  const container = document.getElementById('github-repos-list');
-
-  if (!token) {
-    return alert('로그인이 필요합니다.');
-  }
-
-  container.innerHTML = `
-    <div class="text-xs text-slate-400">
-      GitHub Repository를 불러오는 중...
-    </div>
-  `;
-
-  try {
-    const res = await fetch('/api/v1/integrations/github/repos', {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(
-        data.detail || 'GitHub Repository 조회에 실패했습니다.'
-      );
-    }
-
-    if (!data.length) {
-      container.innerHTML = `
-        <div class="text-xs text-slate-400">
-          조회된 Repository가 없습니다.
-        </div>
-      `;
-      return;
-    }
-
-    container.innerHTML = data.map(repo => {
-
-      const [owner, repoName] = repo.full_name.split('/');
-
-      return `
-        <button
-          onclick='summarizeGitHubRepo(
-            ${JSON.stringify(owner)},
-            ${JSON.stringify(repoName)}
-          )'
-          class="w-full flex items-center justify-between p-3
-                 bg-slate-50 hover:bg-slate-100
-                 border border-slate-200 rounded-xl
-                 transition text-left">
-
-          <div class="min-w-0">
-
-            <div class="flex items-center gap-2">
-
-              <i data-lucide="github"
-                 class="w-3.5 h-3.5 text-slate-700">
-              </i>
-
-              <div class="text-xs font-bold text-slate-800 truncate">
-                ${repo.full_name}
-              </div>
-
-              ${
-                repo.private
-                  ? `<span class="text-[9px] px-2 py-0.5 bg-slate-200 text-slate-500 rounded-full">Private</span>`
-                  : ''
-              }
-
-            </div>
-
-            <div class="text-[10px] text-slate-400 mt-1 truncate">
-              ${repo.description || '설명 없음'}
-            </div>
-
-          </div>
-
-          <span class="text-[11px] text-slate-700 font-bold shrink-0 ml-3">
-            AI 요약
-          </span>
-
-        </button>
-      `;
-    }).join('');
-
-    lucide.createIcons();
-
-  } catch (err) {
-
-    console.error('GitHub Repository 조회 실패:', err);
-
-    container.innerHTML = `
-      <div class="text-xs text-rose-500">
-        ${err.message}
-      </div>
-    `;
-  }
-}
-
-async function summarizeGitHubRepo(owner, repo) {
-  const token = localStorage.getItem('prain_token');
-
-  if (!token) {
-    return alert('로그인이 필요합니다.');
-  }
-
-  const resultDiv =
-    document.getElementById('github-summary-result');
-
-  const contentDiv =
-    document.getElementById('github-summary-content');
-
-  resultDiv.classList.remove('hidden');
-
-  contentDiv.innerHTML = `
-    <div class="text-center py-6 text-slate-400">
-      AI가 ${owner}/${repo} Repository를 분석하고 있습니다...
-    </div>
-  `;
-
-  resultDiv.scrollIntoView({
-    behavior: 'smooth',
-    block: 'center'
-  });
-
-  try {
-
-    const res = await fetch(
-      '/api/v1/integrations/github/summarize',
-      {
-        method: 'POST',
-
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-
-        body: JSON.stringify({
-          owner: owner,
-          repo: repo
-        })
-      }
-    );
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(
-        data.detail || 'GitHub AI 요약에 실패했습니다.'
-      );
-    }
-
-    if (typeof marked !== 'undefined') {
-      contentDiv.innerHTML = marked.parse(
-        data.summary || '요약 결과가 없습니다.'
-      );
-    } else {
-      contentDiv.innerText =
-        data.summary || '요약 결과가 없습니다.';
-    }
-
-    // AI 분석 완료 → Repository 목록 숨기기
-    document
-      .getElementById('github-repos-list')
-      .classList.add('hidden');
-
-    // 버튼을 "목록 보기"로 변경
-    document
-      .getElementById('btn-github-repos')
-      .textContent = '목록 보기';
-
-  } catch (err) {
-
-    console.error('GitHub AI 요약 실패:', err);
-
-    contentDiv.innerHTML = `
-      <div class="text-rose-500">
-        ${err.message}
-      </div>
-    `;
-  }
-}
-
-async function connectNotionOAuth() {
-  const token = localStorage.getItem('prain_token');
-
-  if (!token) {
-    return alert('먼저 이메일 로그인을 완료해주세요.');
-  }
-
-  try {
-    const res = await fetch('/api/v1/integrations/notion/authorize', {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.detail || 'Notion 연동에 실패했습니다.');
-    }
-
-    if (data.authorize_url) {
-      window.open(
-        data.authorize_url,
-        'notion_auth',
-        'width=580,height=720'
-      );
-    }
-  } catch (err) {
-    console.error('Notion OAuth 실패:', err);
-    alert(err.message);
-  }
-}
-
-
-// --- [12. Notion 페이지 조회 & AI 요약] ---
-async function loadNotionPages() {
-  const token = localStorage.getItem('prain_token');
-  const container = document.getElementById('notion-pages-list');
-
-  if (!token) {
-    return alert('로그인이 필요합니다.');
-  }
-
-  container.innerHTML = `
-    <div class="text-xs text-slate-400">
-      Notion 페이지를 불러오는 중...
-    </div>
-  `;
-
-  try {
-    const res = await fetch('/api/v1/integrations/notion/pages', {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(
-        data.detail || 'Notion 페이지 조회에 실패했습니다.'
-      );
-    }
-
-    if (!data.length) {
-      container.innerHTML = `
-        <div class="text-xs text-slate-400">
-          조회된 Notion 페이지가 없습니다.
-        </div>
-      `;
-      return;
-    }
-
-    container.innerHTML = data.map(page => {
-      const pageId = JSON.stringify(page.id);
-      const pageTitle = JSON.stringify(page.title || '제목 없음');
-
-      return `
-        <button
-          onclick='summarizeNotionPage(${pageId}, ${pageTitle})'
-          class="w-full flex items-center justify-between p-3
-                 bg-slate-50 hover:bg-slate-100
-                 border border-slate-200 rounded-xl
-                 transition text-left">
-
-          <div class="min-w-0">
-            <div class="text-xs font-bold text-slate-800 truncate">
-              ${page.title || '제목 없음'}
-            </div>
-
-            <div class="text-[10px] text-slate-400 mt-1">
-              ${
-                page.last_edited_time
-                  ? new Date(page.last_edited_time).toLocaleString()
-                  : ''
-              }
-            </div>
-          </div>
-
-          <span class="text-[11px] text-slate-700 font-bold shrink-0 ml-3">
-            AI 요약
-          </span>
-        </button>
-      `;
-    }).join('');
-
-    lucide.createIcons();
-
-  } catch (err) {
-    console.error('Notion 페이지 조회 실패:', err);
-
-    container.innerHTML = `
-      <div class="text-xs text-rose-500">
-        ${err.message}
-      </div>
-    `;
-  }
-}
-
-// --- [13. Notion 페이지 AI 요약] ---
-async function summarizeNotionPage(pageId, pageTitle) {
-  const token = localStorage.getItem('prain_token');
-
-  if (!token) {
-    return alert('로그인이 필요합니다.');
-  }
-
-  const resultDiv = document.getElementById('notion-summary-result');
-  const contentDiv = document.getElementById('notion-summary-content');
-
-  resultDiv.classList.remove('hidden');
-
-  contentDiv.innerHTML = `
-    <div class="text-center py-6 text-slate-400">
-      AI가 "${pageTitle}" 페이지를 요약하고 있습니다...
-    </div>
-  `;
-
-  resultDiv.scrollIntoView({
-    behavior: 'smooth',
-    block: 'center'
-  });
-
-  try {
-    const res = await fetch(
-      '/api/v1/integrations/notion/summarize',
-      {
-        method: 'POST',
-
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-
-        body: JSON.stringify({
-          page_id: pageId,
-          page_title: pageTitle
-        })
-      }
-    );
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(
-        data.detail || 'Notion AI 요약에 실패했습니다.'
-      );
-    }
-
-    if (typeof marked !== 'undefined') {
-      contentDiv.innerHTML = marked.parse(
-        data.summary || '요약 결과가 없습니다.'
-      );
-    } else {
-      contentDiv.innerText =
-        data.summary || '요약 결과가 없습니다.';
-    }
-    // AI 분석 완료 → 페이지 목록 숨기기
-    document
-      .getElementById('notion-pages-list')
-      .classList.add('hidden');
-
-    // 버튼을 "목록 보기"로 변경
-    document
-      .getElementById('btn-notion-pages')
-      .textContent = '목록 보기';
-
-  } catch (err) {
-    console.error('Notion AI 요약 실패:', err);
-
-    contentDiv.innerHTML = `
-      <div class="text-rose-500">
-        ${err.message}
-      </div>
-    `;
-  }
-}
-
-// --- [14. Notion 페이지 목록 토글] ---
-function toggleNotionPages() {
-    const list = document.getElementById('notion-pages-list');
-    const result = document.getElementById('notion-summary-result');
-    const button = document.getElementById('btn-notion-pages');
-
-    // AI 분석 결과가 현재 보이는 경우
-    // → 분석창을 닫고 기존 페이지 목록 보여주기
-    if (!result.classList.contains('hidden')) {
-        result.classList.add('hidden');
-        list.classList.remove('hidden');
-
-        button.textContent = '목록 닫기';
-        return;
-    }
-
-    // 페이지 목록이 현재 보이는 경우
-    // → 목록 닫기
-    if (
-        list.innerHTML.trim() !== '' &&
-        !list.classList.contains('hidden')
-    ) {
-        list.classList.add('hidden');
-
-        button.textContent = '목록 보기';
-        return;
-    }
-
-    // 페이지를 이미 불러온 적이 있는 경우
-    // → API 재호출 없이 기존 목록 보여주기
-    if (list.innerHTML.trim() !== '') {
-        list.classList.remove('hidden');
-
-        button.textContent = '목록 닫기';
-        return;
-    }
-
-    // 최초 실행
-    list.classList.remove('hidden');
-
-    loadNotionPages();
-
-    button.textContent = '목록 닫기';
-}
-
-// --- [15. GitHub Repository 목록 토글] ---
-function toggleGitHubRepos() {
-    const list = document.getElementById('github-repos-list');
-    const result = document.getElementById('github-summary-result');
-    const button = document.getElementById('btn-github-repos');
-
-    // AI 분석 결과가 보이는 경우
-    // → 분석창 닫고 Repository 목록 보여주기
-    if (!result.classList.contains('hidden')) {
-        result.classList.add('hidden');
-        list.classList.remove('hidden');
-
-        button.textContent = '목록 닫기';
-        return;
-    }
-
-    // Repository 목록이 보이는 경우
-    // → 목록 닫기
-    if (
-        list.innerHTML.trim() !== '' &&
-        !list.classList.contains('hidden')
-    ) {
-        list.classList.add('hidden');
-
-        button.textContent = '목록 보기';
-        return;
-    }
-
-    // 이미 Repository를 불러온 경우
-    // → API 재호출 없이 기존 목록 보여주기
-    if (list.innerHTML.trim() !== '') {
-        list.classList.remove('hidden');
-
-        button.textContent = '목록 닫기';
-        return;
-    }
-
-    // 최초 실행
-    list.classList.remove('hidden');
-
-    loadGitHubRepos();
-
-    button.textContent = '목록 닫기';
-}
-
-// --- [16. AI 도구 탭 전환] ---
-function switchAITool(tool) {
-
-    const tools = ['figma', 'github', 'notion'];
-
-    tools.forEach(name => {
-
-        const panel = document.getElementById(`ai-tool-${name}`);
-        const tab = document.getElementById(`tab-${name}`);
-
-        if (name === tool) {
-
-            // 선택한 영역 표시
-            panel.classList.remove('hidden');
-
-            // 선택된 탭
-            tab.classList.remove(
-                'bg-slate-100',
-                'text-slate-500',
-                'hover:bg-slate-200'
-            );
-
-            tab.classList.add(
-                'bg-slate-900',
-                'text-white'
-            );
-
-        } else {
-
-            // 선택되지 않은 영역 숨기기
-            panel.classList.add('hidden');
-
-            // 선택되지 않은 탭
-            tab.classList.remove(
-                'bg-slate-900',
-                'text-white'
-            );
-
-            tab.classList.add(
-                'bg-slate-100',
-                'text-slate-500',
-                'hover:bg-slate-200'
-            );
-        }
-    });
-}
 
     // 초기 실행
     window.addEventListener('DOMContentLoaded', checkAppState);
