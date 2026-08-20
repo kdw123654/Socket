@@ -16,6 +16,24 @@ class Settings(BaseSettings):
     DISCORD_CLIENT_SECRET: str = ""
     DISCORD_REDIRECT_URI: str = "http://127.0.0.1:8000/api/v1/integrations/discord/callback"
 
+    FIGMA_CLIENT_ID: str = "QuOgPFYe2uoQSvCRPE0Vu0"
+    FIGMA_CLIENT_SECRET: str = "vGP2rf1ST1pAgyEx70o2I9fskTHdGurId9lWWy9N"
+    FIGMA_REDIRECT_URI: str = "http://127.0.0.1:8000/api/v1/integrations/figma/callback"
+
+    # GitHub OAuth
+    GITHUB_CLIENT_ID: str = ""
+    GITHUB_CLIENT_SECRET: str = ""
+    GITHUB_REDIRECT_URI: str = "http://127.0.0.1:8000/api/v1/integrations/github/callback"
+
+    # Notion OAuth
+    NOTION_CLIENT_ID: str = ""
+    NOTION_CLIENT_SECRET: str = ""
+    NOTION_REDIRECT_URI: str = "http://localhost:8000/api/v1/integrations/notion/callback"
+
+    # Notion은 Redirect URI에 127.0.0.1과 같은 IP 주소를 허용하지 않아
+    # 개발 환경에서는 localhost를 사용
+    # 배포 도메인 확정 후 운영 Redirect URI로 변경 필요
+
     class Config:
         env_file = ".env"
         extra = "ignore"
