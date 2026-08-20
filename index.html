@@ -83,7 +83,7 @@
           <i data-lucide="message-square" class="w-4 h-4"></i>
           <span>Discord로 계속하기</span>
         </button>
-        <button onclick="alert('GitHub OAuth는 준비 중입니다.')" class="w-full py-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 rounded-2xl text-xs font-bold flex items-center justify-center gap-2.5 transition shadow-sm">
+        <button onclick="connectGitHubOAuth()" class="w-full py-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 rounded-2xl text-xs font-bold flex items-center justify-center gap-2.5 transition shadow-sm">
           <i data-lucide="github" class="w-4 h-4"></i>
           <span>GitHub로 계속하기</span>
         </button>
@@ -168,93 +168,6 @@
               <div class="text-[11px] font-bold text-slate-400 mb-3 uppercase tracking-wider">주요 연동 상태</div>
               <div id="dashboard-tool-status-list" class="space-y-2 text-xs font-medium"></div>
             </div>
-            <div>
-              <button onclick="openToolModal()" class="w-full mt-4 py-2.5 border border-slate-200 bg-slate-50 hover:bg-slate-100 rounded-2xl text-xs font-bold transition flex items-center justify-center gap-1.5">
-                <i data-lucide="search" class="w-3.5 h-3.5"></i>
-                <span>+ 협업 도구 검색/추가</span>
-              </button>
-              <button onclick="showFigmaPATModal()" id="btn-figma-connect" class="w-full mt-2 py-2.5 border border-[#A259FF]/30 bg-[#A259FF]/5 hover:bg-[#A259FF]/10 text-[#A259FF] rounded-2xl text-xs font-bold transition flex items-center justify-center gap-1.5">
-                <i data-lucide="figma" class="w-3.5 h-3.5"></i>
-                <span>Figma 연동하기</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- 우측: 활동 피드 -->
-          <div class="w-2/3 bg-white p-6 rounded-3xl border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col">
-            <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
-              <h3 class="text-xs font-bold text-slate-900">통합 활동 피드</h3>
-              <div class="flex items-center gap-2">
-                <input id="figma-file-key-input" type="text" placeholder="Figma URL 붙여넣기" class="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-[11px] w-44 focus:outline-none focus:border-[#A259FF]" />
-                <button onclick="loadFigmaComments()" class="px-2.5 py-1 bg-[#A259FF] hover:bg-[#8B3FD9] text-white text-[11px] font-bold rounded-lg transition">피드 불러오기</button>
-              </div>
-            </div>
-            <div id="activity-feed-list" class="space-y-3 flex-1 overflow-y-auto">
-              <div class="flex items-start gap-3 pb-2.5 border-b border-slate-50">
-                <div class="p-2 bg-slate-100 rounded-xl text-slate-700"><i data-lucide="git-commit" class="w-4 h-4"></i></div>
-                <div>
-                  <div class="text-xs font-bold text-slate-800">map-api 커밋 완료</div>
-                  <div class="text-[11px] text-slate-400 mt-0.5">GitHub · 12분 전</div>
-                </div>
-              </div>
-              <div class="flex items-start gap-3">
-                <div class="p-2 bg-[#EAF4FF] rounded-xl text-[#2BA6FF]"><i data-lucide="message-circle" class="w-4 h-4"></i></div>
-                <div>
-                  <div class="text-xs font-bold text-slate-800">카테고리 분류 및 회의록 공유</div>
-                  <div class="text-[11px] text-slate-400 mt-0.5">Discord #기획 · 40분 전</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 하단 1: 내 등록 프로그램 그리드 -->
-        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
-          <div class="flex items-center justify-between mb-4">
-            <div>
-              <h3 class="text-sm font-black text-slate-900">내 워크스페이스 프로그램</h3>
-              <p class="text-xs text-slate-400 mt-0.5">클릭하면 멀티 작업창에서 2분할 화면으로 즉시 실행됩니다.</p>
-            </div>
-            <button onclick="openToolModal()" class="px-3.5 py-1.5 bg-[#2BA6FF] hover:bg-[#1E96ED] text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-sm">
-              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-              <span>도구 추가</span>
-            </button>
-          </div>
-          <div id="installed-tools-grid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3.5"></div>
-        </div>
-
-        <!-- 하단 2: Figma AI 프레임 분석 -->
-        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
-          <div class="flex items-center justify-between mb-4">
-            <div>
-              <h3 class="text-sm font-black text-slate-900">🎨 Figma 디자인 → AI 구현 가이드</h3>
-              <p class="text-xs text-slate-400 mt-0.5">Figma 파일의 프레임을 선택하면 AI가 구현 방법을 분석해줍니다.</p>
-            </div>
-            <div id="figma-pat-status" class="flex items-center gap-2">
-              <span id="figma-pat-badge" class="hidden px-3 py-1 bg-[#A259FF]/10 text-[#A259FF] text-[11px] font-bold rounded-lg"></span>
-              <button onclick="showFigmaPATModal()" id="btn-figma-pat" class="px-3 py-1.5 bg-[#A259FF] hover:bg-[#8B3FD9] text-white text-xs font-bold rounded-xl transition">Figma 연동</button>
-            </div>
-          </div>
-
-          <!-- Figma URL 입력 -->
-          <div class="flex gap-3 mb-4">
-            <input id="figma-analyze-file-key" type="text" placeholder="Figma 파일 URL 붙여넣기" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#A259FF]" />
-            <button onclick="loadFigmaEmbed()" class="px-4 py-2 bg-[#A259FF] hover:bg-[#8B3FD9] text-white text-xs font-bold rounded-xl transition shrink-0">파일 열기</button>
-          </div>
-
-          <!-- Figma 임베드 뷰어 -->
-          <div id="figma-embed-container" class="hidden mb-4 rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
-            <iframe id="figma-embed-iframe" class="w-full" style="height: 450px; border: none;" allowfullscreen></iframe>
-            <div class="p-3 bg-slate-50 border-t border-slate-200 flex justify-end">
-              <button onclick="summarizeFigmaFile()" class="px-4 py-2 bg-[#A259FF] hover:bg-[#8B3FD9] text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5">
-                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-                <span>AI 요약</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- 프레임 목록 -->
-          <div id="figma-frames-list" class="grid grid-cols-3 gap-2 mb-4"></div>
 
           <!-- AI 분석 결과 -->
           <div id="figma-analysis-result" class="hidden bg-slate-50 border border-slate-200 rounded-2xl p-5">
@@ -265,6 +178,155 @@
             <div id="figma-analysis-content" class="prose text-xs text-slate-700 leading-relaxed"></div>
           </div>
         </div>
+
+        <!-- GitHub AI Repository 요약 -->
+        <div
+          id="ai-tool-github"
+          class="hidden bg-white p-6 rounded-3xl border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-sm font-black text-slate-900">
+                🐙 GitHub Repository → AI 요약
+              </h3>
+
+              <p class="text-xs text-slate-400 mt-0.5">
+                Repository를 선택하면 Issue, Pull Request, Commit을 AI가 요약해줍니다.
+              </p>
+            </div>
+
+            <div id="github-status" class="flex items-center gap-2">
+
+              <span
+                id="github-badge"
+                class="hidden px-3 py-1 bg-slate-100 text-slate-700 text-[11px] font-bold rounded-lg">
+              </span>
+
+              <button
+                onclick="connectGitHubOAuth()"
+                id="btn-github-ai-connect"
+                class="px-3 py-1.5 bg-slate-900 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition">
+                GitHub 연동
+              </button>
+
+            </div>
+          </div>
+
+
+          <!-- Repository 불러오기 -->
+          <div class="flex gap-3 mb-4">
+
+            <div
+              class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-400">
+              연동된 GitHub 계정의 Repository를 불러옵니다.
+            </div>
+
+            <button
+              onclick="toggleGitHubRepos()"
+              id="btn-github-repos"
+              class="px-4 py-2 bg-slate-900 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition shrink-0">
+              Repository 불러오기
+            </button>
+
+          </div>
+
+
+          <!-- Repository 목록 -->
+          <div
+            id="github-repos-list"
+            class="space-y-2 mb-4">
+          </div>
+
+
+          <!-- AI 요약 결과 -->
+          <div
+            id="github-summary-result"
+            class="hidden bg-slate-50 border border-slate-200 rounded-2xl p-5">
+
+            <div class="flex items-center gap-2 mb-3">
+              <i data-lucide="sparkles" class="w-4 h-4 text-slate-700"></i>
+
+              <span class="text-xs font-bold text-slate-900">
+                AI Repository 요약
+              </span>
+            </div>
+
+            <div
+              id="github-summary-content"
+              class="prose text-xs text-slate-700 leading-relaxed">
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Notion AI 페이지 요약 -->
+        <div
+          id="ai-tool-notion"
+          class="hidden bg-white p-6 rounded-3xl border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-sm font-black text-slate-900">📝 Notion 페이지 → AI 요약</h3>
+              <p class="text-xs text-slate-400 mt-0.5">
+                Notion 페이지를 선택하면 AI가 주요 내용을 분석하고 요약해줍니다.
+              </p>
+            </div>
+
+            <div id="notion-status" class="flex items-center gap-2">
+              <span
+                id="notion-badge"
+                class="hidden px-3 py-1 bg-slate-100 text-slate-700 text-[11px] font-bold rounded-lg">
+              </span>
+
+              <button
+                onclick="connectNotionOAuth()"
+                id="btn-notion-ai-connect"
+                class="px-3 py-1.5 bg-slate-900 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition">
+                Notion 연동
+              </button>
+            </div>
+          </div>
+
+          <!-- Notion 페이지 불러오기 -->
+          <div class="flex gap-3 mb-4">
+            <div
+              class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-400">
+              연동된 Notion 워크스페이스의 페이지를 불러옵니다.
+            </div>
+
+            <button
+              onclick="toggleNotionPages()"
+              id="btn-notion-pages"
+              class="px-4 py-2 bg-slate-900 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition shrink-0">
+              페이지 불러오기
+            </button>
+          </div>
+
+          <!-- Notion 페이지 목록 -->
+          <div
+            id="notion-pages-list"
+            class="space-y-2 mb-4">
+          </div>
+
+          <!-- AI 요약 결과 -->
+          <div
+            id="notion-summary-result"
+            class="hidden bg-slate-50 border border-slate-200 rounded-2xl p-5">
+
+            <div class="flex items-center gap-2 mb-3">
+              <i data-lucide="sparkles" class="w-4 h-4 text-slate-700"></i>
+              <span class="text-xs font-bold text-slate-900">
+                AI 페이지 요약
+              </span>
+            </div>
+
+            <div
+              id="notion-summary-content"
+              class="prose text-xs text-slate-700 leading-relaxed">
+            </div>
+          </div>
+        </div>
+
       </section>
 
       <!-- ========================================================= -->
@@ -607,6 +669,8 @@
         document.getElementById('user-nickname-tag').innerText = user.nickname || user.email;
         checkDiscord();
         checkFigmaPAT();
+        checkGitHub();
+        checkNotion();
         renderUserTools();
         renderCommunityPosts();
         loadMeetings();
