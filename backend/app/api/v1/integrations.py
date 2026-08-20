@@ -1,4 +1,31 @@
-from fastapi import APIRouter
+from datetime import datetime, timezone, timedelta
+import urllib.parse
+import jwt
+
+from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import HTMLResponse
+
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+
+from pydantic import BaseModel
+
+from app.core.config import settings
+from app.core.database import get_db
+from app.core.deps import get_current_user
+from app.core.security import encrypt_token
+
+from app.models.user import User
+from app.models.integration import UserIntegration
+
+from app.schemas.integration import OAuthAuthorizeResponse
+
+from app.services.discord_service import DiscordService
+from app.services.figma_service import FigmaService
+from app.services.github_service import GitHubService
+from app.services.notion_service import NotionService
+
+router = APIRouter()
 
 router = APIRouter()
 
@@ -11,11 +38,37 @@ async def discord_callback(code: str = ""):
     return {"message": "Discord 연동이 완료되었습니다.", "code": code}
 
 @router.get("/discord/status")
-async def discord_status():
+async def get_discord_status(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    valid_token = await DiscordService.get_valid_access_token(
+        str(current_user.id),
+        db
+    )
+
+    if not valid_token:
+        return {
+            "connected": False
+        }
+
+    result = await db.execute(
+        select(UserIntegration).where(
+            UserIntegration.user_id == current_user.id,
+            UserIntegration.provider == "discord"
+        )
+    )
+
+    integration = result.scalars().first()
+
     return {
         "connected": True,
         "provider": "discord",
-        "username": integration.provider_username if integration else None
+        "username": (
+            integration.provider_username
+            if integration
+            else None
+        )
     }
 
 @router.delete("/discord")
