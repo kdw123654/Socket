@@ -785,6 +785,13 @@
     }
 
     function handleLogout() {
+      const token = localStorage.getItem('prain_token');
+      if (token) {
+        fetch('/api/v1/auth/logout', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        }).catch(() => {});
+      }
       localStorage.removeItem('prain_token');
       localStorage.removeItem('prain_user');
       localStorage.removeItem('figma_pat');

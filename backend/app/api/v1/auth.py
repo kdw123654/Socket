@@ -39,3 +39,9 @@ async def login(user_in: UserLogin, db: AsyncSession = Depends(get_db)):
 @router.get("/me", response_model=UserResponse)
 async def get_me(current_user: User = Depends(get_current_user)):
     return current_user
+
+
+@router.post("/logout")
+async def logout(current_user: User = Depends(get_current_user)):
+    """로그아웃 (클라이언트에서 토큰 삭제용 확인 엔드포인트)"""
+    return {"message": "로그아웃 되었습니다."}
