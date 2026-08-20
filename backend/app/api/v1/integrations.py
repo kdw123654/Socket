@@ -626,7 +626,6 @@ async def get_project_files(
         raise HTTPException(status_code=400, detail=f"파일 조회 실패: {str(e)}")
     return {"files": files}
 
-
 @router.get("/github/authorize", response_model=OAuthAuthorizeResponse)
 async def get_github_auth_url(
     current_user: User = Depends(get_current_user)
@@ -1176,26 +1175,39 @@ async def get_notion_pages(
             detail=str(e)
         )
 
+    # 페이지 제목 가져오기
+    def get_page_title(page: dict):
+        properties = page.get("properties", {})
+
+        # property 이름이 "title"이 아니어도
+        # type이 title인 property를 찾아서 사용
+        for prop in properties.values():
+            if prop.get("type") == "title":
+                title_items = prop.get("title", [])
+
+                if title_items:
+                    return "".join(
+                        item.get("plain_text", "")
+                        for item in title_items
+                    )
+
+        return None
+
+    # 일반 Notion 페이지만 반환
     return [
-    {
-        "id": page.get("id"),
-        "object": page.get("object"),
-        "title": (
-            page.get("properties", {})
-            .get("title", {})
-            .get("title", [{}])[0]
-            .get("plain_text")
-            if page.get("properties", {})
-                .get("title", {})
-                .get("title")
-            else None
-        ),
-        "url": page.get("url"),
-        "created_time": page.get("created_time"),
-        "last_edited_time": page.get("last_edited_time"),
-    }
-    for page in pages
-]
+        {
+            "id": page.get("id"),
+            "object": page.get("object"),
+            "title": get_page_title(page),
+            "url": page.get("url"),
+            "created_time": page.get("created_time"),
+            "last_edited_time": page.get("last_edited_time"),
+        }
+        for page in pages
+        if page.get("object") == "page"
+        and page.get("parent", {}).get("type")
+        not in ("database_id", "data_source_id")
+    ]
 
 @router.get("/notion/pages/{page_id}/blocks")
 async def get_notion_page_blocks(
