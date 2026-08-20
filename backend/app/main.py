@@ -3,10 +3,13 @@ import httpx
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-
+from app.api.v1 import ai
 from app.core.config import settings
 from app.core.database import init_db
 from app.api.v1 import auth, integrations, ai, workspace
+from pathlib import Path
+from fastapi.staticfiles import StaticFiles
+
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -14,7 +17,8 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc"
 )
-
+BASE_DIR = Path(__file__).resolve().parent
+STATIC_DIR = BASE_DIR / "static"
 # 1. CORS 설정
 app.add_middleware(
     CORSMiddleware,
@@ -54,7 +58,8 @@ app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["Aut
 app.include_router(integrations.router, prefix=f"{settings.API_V1_STR}/integrations", tags=["Integrations"])
 app.include_router(ai.router, prefix=f"{settings.API_V1_STR}/ai", tags=["AI Meeting Notes"])
 app.include_router(workspace.router, prefix=f"{settings.API_V1_STR}/workspace", tags=["Workspace"])
-
+app.include_router(ai.router, prefix="/api/v1/ai", tags=["AI"])
+app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
 # 4. 정적 파일 호스팅
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 if os.path.exists(os.path.join(ROOT_DIR, "index.html")):
