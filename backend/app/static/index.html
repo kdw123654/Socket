@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Prain</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <svg class="icon-sprite" aria-hidden="true" focusable="false">
+    <symbol id="icon-discord" viewBox="0 0 24 24"><path d="M20.3 4.4a19.7 19.7 0 0 0-4.9-1.5.1.1 0 0 0-.1 0c-.2.4-.4.9-.6 1.2a18.3 18.3 0 0 0-5.5 0c-.2-.4-.4-.9-.6-1.2a.1.1 0 0 0-.1 0 19.7 19.7 0 0 0-4.9 1.5C.5 9-.3 13.6.1 18.1c0 0 0 .1.1.1a19.9 19.9 0 0 0 6 3 .1.1 0 0 0 .1 0c.5-.6.9-1.3 1.2-2a.1.1 0 0 0 0-.1c-.7-.2-1.3-.5-1.9-.9a.1.1 0 0 1 0-.1l.4-.3h.1c3.9 1.8 8.2 1.8 12.1 0h.1l.4.3a.1.1 0 0 1 0 .1c-.6.4-1.2.7-1.9.9a.1.1 0 0 0 0 .1c.4.7.8 1.4 1.2 2a.1.1 0 0 0 .1 0 20 20 0 0 0 6-3 .1.1 0 0 0 .1-.1c.4-5.2-.9-9.7-3.6-13.7ZM8 15.3c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Zm8 0c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Z"/></symbol>
+    <symbol id="icon-github" viewBox="0 0 24 24"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.4 11.4 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3Z"/></symbol>
+    <symbol id="icon-notion" viewBox="0 0 24 24"><path d="M4.5 4.2c.7.6 1 .6 2.4.5l13.2-.8c.3 0 .1-.3 0-.3L17.9 2c-.4-.3-1-.7-2.1-.6L3 2.3c-.5 0-.6.3-.4.5l1.9 1.4Zm.8 3.1v13.9c0 .7.4 1 1.2 1l14.5-.9c.8 0 .9-.6.9-1.2V6.4c0-.6-.2-.9-.7-.9L6 6.4c-.5 0-.7.3-.7.9Zm14.3.7c.1.4 0 .9-.4.9l-.7.1v10.3c-.6.3-1.2.5-1.6.5-.8 0-.9-.2-1.5-.9l-4.6-7.2v7l1.4.3s0 .8-1.2.8l-3.2.2c-.1-.2 0-.7.3-.8l.9-.2V9.9l-1.2-.1c-.1-.4.1-1 .8-1.1l3.5-.2 4.7 7.2V9.3l-1.2-.1c-.1-.5.3-.9.8-.9l3.2-.3Z"/></symbol>
+    <symbol id="icon-figma" viewBox="0 0 24 24"><path d="M8.5 2H12v7H8.5a3.5 3.5 0 1 1 0-7ZM12 2h3.5a3.5 3.5 0 1 1 0 7H12V2ZM8.5 9H12v7H8.5a3.5 3.5 0 1 1 0-7Zm7 7a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm-7 0H12v3.5A3.5 3.5 0 1 1 8.5 16Z"/></symbol>
+  </svg>
+
+  <main>
+    <section class="screen auth-screen active" id="authScreen">
+      <span class="corner-label">회원가입</span>
+      <div class="auth-brand" aria-label="prain">
+        <svg class="prain-logo" viewBox="0 0 56 56" role="img" aria-hidden="true">
+          <path class="prain-logo-mark" d="M13.5 50V22.5C13.5 12.3 21.1 5 31 5c10.1 0 17.5 7.5 17.5 17.5S41.1 40 31 40c-7.1 0-12.9-3.6-15.7-9.1" />
+          <path class="prain-logo-check" d="M24.2 22.8l5.5 5.6 10.4-11.2" />
+        </svg>
+        <h1>prain</h1>
+      </div>
+      <div class="signup-card">
+        <p>백엔드 API와 연결된 협업 워크스페이스</p>
+        <div class="api-chip"><span id="authApiState">API 대기 중</span><b id="authApiBase">연결 주소 확인</b></div>
+        <button class="auth-btn discord-auth" id="installDiscordBot" type="button"><svg class="brand-icon auth-icon"><use href="#icon-discord"></use></svg>Discord로 계속하기</button>
+        <button class="auth-btn github-auth" data-next type="button"><svg class="brand-icon auth-icon"><use href="#icon-github"></use></svg>GitHub로 계속하기</button>
+        <p class="install-message" id="installMessage" aria-live="polite"></p>
+        <div class="divider"><span>또는 이메일로 시작</span></div>
+
+        <div class="auth-mode" role="tablist" aria-label="인증 방식">
+          <button class="active" type="button" data-auth-mode="signup">회원가입</button>
+          <button type="button" data-auth-mode="login">로그인</button>
+        </div>
+        <form id="signupForm" novalidate>
+          <input id="authEmail" type="email" placeholder="이메일 입력하시오" autocomplete="email">
+          <input id="authPassword" type="password" placeholder="비밀번호" autocomplete="current-password">
+          <input id="authNickname" type="text" placeholder="이름 입력하시오" autocomplete="nickname">
+          <label><input id="rememberLogin" type="checkbox" checked> 계정 로그인 유지</label>
+          <button class="start-btn" id="authSubmit" type="submit">회원가입하고 시작하기</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="screen connect-screen" id="connectScreen">
+      <div class="connect-wrap">
+        <span class="check">✓</span>
+        <h1>협업 툴을 연결하세요</h1>
+        <p>백엔드 연동 상태와 토큰 준비 과정을 한곳에서 확인합니다</p>
+        <div class="tool-list">
+          <article class="tool connected">
+            <div class="tool-icon"><svg class="brand-icon"><use href="#icon-discord"></use></svg></div>
+            <div><b>Discord</b><small id="discordStatusText">연동 상태 확인 중</small></div>
+            <button class="channel-btn" id="discordConnect" type="button">OAuth 열기</button>
+          </article>
+          <article class="tool" id="githubTool">
+            <div class="tool-icon"><svg class="brand-icon"><use href="#icon-github"></use></svg></div>
+            <div><b>GitHub</b><small id="githubStatusText">OAuth 연결 필요</small></div>
+            <button class="link-btn" id="githubConnect" type="button">OAuth 열기</button>
+          </article>
+          <article class="tool" id="notionTool">
+            <div class="tool-icon"><svg class="brand-icon"><use href="#icon-notion"></use></svg></div>
+            <div><b>Notion</b><small id="notionStatusText">OAuth 연결 필요</small></div>
+            <button class="link-btn" id="notionConnect" type="button">OAuth 열기</button>
+          </article>
+          <article class="tool figma-tool" id="figmaTool">
+            <div class="tool-icon"><svg class="brand-icon"><use href="#icon-figma"></use></svg></div>
+            <div><b>Figma</b><small id="figmaStatusText">PAT 등록 필요</small></div>
+            <button class="link-btn" id="showFigmaGuide" type="button">발급 방법</button>
+          </article>
+        </div>
+
+        <section class="figma-guide" id="figmaGuide">
+          <div class="figma-shot" aria-hidden="true">
+            <div class="shot-bar"><span></span><span></span><span></span><b>Figma Settings</b></div>
+            <div class="shot-body">
+              <aside><b>Account</b><span>Profile</span><span class="selected">Security</span><span>Notifications</span></aside>
+              <main>
+                <small>Personal access tokens</small>
+                <div class="token-row">Prain integration <button type="button">Generate token</button></div>
+                <div class="scope-grid"><span>file_content:read</span><span>file_metadata:read</span></div>
+              </main>
+            </div>
+          </div>
+          <div class="figma-copy">
+            <h2>Figma PAT 발급 순서</h2>
+            <ol>
+              <li>Figma 파일 브라우저 왼쪽 위 계정 메뉴에서 Settings를 엽니다.</li>
+              <li>Security 탭의 Personal access tokens 영역에서 Generate new token을 누릅니다.</li>
+              <li>토큰 이름, 만료일, 필요한 scope를 선택하고 Generate token을 누릅니다.</li>
+              <li>토큰은 한 번만 보이므로 즉시 안전한 곳에 보관하고, 프론트 코드에는 넣지 않습니다.</li>
+            </ol>
+            <form class="figma-pat-form" id="figmaPatForm">
+              <label>Figma PAT</label>
+              <div>
+                <input id="figmaPatInput" type="password" placeholder="figd_...">
+                <button type="submit">PAT 저장</button>
+              </div>
+            </form>
+            <div class="figma-pat-actions">
+              <p id="figmaPatMessage">PAT는 백엔드 보안 저장소에만 저장됩니다.</p>
+              <button id="disconnectFigmaPat" type="button">연동 해제</button>
+            </div>
+            <a href="https://developers.figma.com/docs/rest-api/personal-access-tokens/" target="_blank" rel="noopener noreferrer">Figma 공식 안내 보기</a>
+          </div>
+        </section>
+
+        <button class="dashboard-btn" id="enterDashboard" type="button">대시보드로 이동</button>
+      </div>
+    </section>
+
+    <section class="screen app-screen" id="appScreen">
+      <aside class="server-rail"><button class="server active" type="button">◉</button><button class="server" type="button">P</button><button class="server" type="button">G</button><button class="server" type="button">＋</button></aside>
+      <aside class="discord-sidebar">
+        <div class="find">새 그룹 찾기 또는 시작하기</div>
+        <nav>
+          <button class="side-link active" data-view="dashboard" type="button">⌁ 아이디어 보드</button>
+          <button class="side-link" data-view="ai" type="button">◉ AI 채팅</button>
+          <button class="side-link" data-view="meeting" type="button">◖ 회의 기록</button>
+          <button class="side-link" data-view="community" type="button">N 커뮤니티</button>
+          <button class="side-link" data-view="workspace" type="button">▦ 2분할 작업창</button>
+        </nav>
+        <div class="divider-line"></div>
+        <p class="members-title">팀원 및 다이렉트 메시지 ＋</p>
+        <div class="member"><i class="avatar cyan">서</i><span><b>AIin</b><small>prAInbot.com</small></span></div>
+        <div class="member"><i class="avatar photo">F</i><span><b>FiatLux</b><small>DH</small></span></div>
+        <div class="userbar"><i class="avatar rainbow">P</i><span><b id="userNickname">Prain</b><small id="userEmail">온라인</small></span><button id="logoutButton" type="button" title="로그아웃">⏻</button></div>
+      </aside>
+
+      <section class="workspace">
+        <header class="workspace-top">
+          <b id="viewTitle">아이디어 보드</b>
+          <button id="refreshData" type="button">새로고침</button>
+          <span id="apiMode">API 연결 확인 중</span>
+        </header>
+
+        <div class="view active" id="dashboardView">
+          <div class="top-tabs">
+            <button class="active" type="button">대시보드</button>
+            <button data-jump="ai" type="button">AI 채팅</button>
+            <button data-jump="meeting" type="button">회의 기록</button>
+            <button data-jump="community" type="button">커뮤니티</button>
+            <button data-jump="workspace" type="button">2분할 작업창</button>
+          </div>
+          <div class="dashboard-layout">
+            <aside class="project-summary">
+              <h2>Prain 플랫폼</h2>
+              <span>진행도 80%</span>
+              <progress value="80" max="100"></progress>
+              <small>연동 준비 API</small>
+              <b><svg class="brand-icon summary-icon"><use href="#icon-discord"></use></svg>Discord OAuth</b>
+              <b id="githubSummaryItem"><svg class="brand-icon summary-icon"><use href="#icon-github"></use></svg>GitHub OAuth</b>
+              <b><svg class="brand-icon summary-icon"><use href="#icon-figma"></use></svg>Figma PAT · AI 분석</b>
+              <b id="notionSummaryItem"><svg class="brand-icon summary-icon"><use href="#icon-notion"></use></svg>Notion OAuth</b>
+              <button id="openProjectSetup" type="button">＋ 연동 설정</button>
+            </aside>
+
+            <section class="activity" id="activityFeedSection">
+              <div class="section-head">
+                <div><small>Activity</small><h2>통합 활동 피드</h2></div>
+                <button type="button" id="openActivityModal" style="font-size:11px;padding:5px 12px;background:#2563eb;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;">전체 피드 보기</button>
+              </div>
+              <div id="activityFeedPreview" style="padding:12px 0;">
+                <p class="api-empty-state" style="font-size:12px;color:#94a3b8;">Figma 파일을 조회하면 최신 활동이 표시됩니다.</p>
+              </div>
+            </section>
+
+            <aside class="ai-summary empty-summary" id="dashboardInsight">
+              <small id="dashboardSummaryLabel">요약 없음</small>
+              <p id="dashboardSummary">아직 생성된 AI 요약이 없습니다.</p>
+              <small>최근 회의록</small>
+              <p id="latestMeeting">회의록을 불러오는 중입니다.</p>
+            </aside>
+          </div>
+
+          <div class="dashboard-tools-grid">
+            <section class="figma-api-panel">
+              <div class="section-head">
+                <div><small>Figma File</small><h2>Figma 디자인 → AI 구현 가이드</h2></div>
+                <span id="figmaFileStatus">파일 URL 입력 대기</span>
+              </div>
+              <form class="figma-api-form" id="figmaFileForm">
+                <input id="figmaFileKey" placeholder="Figma 파일 URL 붙여넣기">
+                <input id="figmaNodeId" class="hidden" placeholder="node_id">
+                <input id="figmaFrameName" class="hidden" placeholder="프레임 이름">
+                <div class="figma-api-actions">
+                  <button data-figma-action="embed" type="submit">파일 열기</button>
+                </div>
+              </form>
+              <div class="figma-embed-container" id="figmaEmbedContainer" style="display:none;margin-top:12px;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0;">
+                <iframe id="figmaEmbedIframe" style="width:100%;height:420px;border:none;" allowfullscreen></iframe>
+                <div style="padding:10px;background:#f8fafc;border-top:1px solid #e2e8f0;display:flex;justify-content:flex-end;">
+                  <button type="button" id="figmaAiSummarizeBtn" style="font-size:12px;padding:6px 14px;background:#a259ff;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;">AI 요약</button>
+                </div>
+              </div>
+              <div class="figma-result empty-state" id="figmaResult" aria-live="polite">
+                Figma 파일 URL을 입력하고 "파일 열기"를 누르면 디자인이 표시됩니다.
+              </div>
+            </section>
+
+            <div class="ops-layout single-panel">
+              <section class="ops-panel">
+                <div class="section-head"><div><small>Notes</small><h2>메모</h2></div></div>
+                <form class="note-form" id="noteForm">
+                  <input id="noteTitle" placeholder="메모 제목">
+                  <textarea id="noteContent" placeholder="메모 내용을 입력하세요"></textarea>
+                  <button type="submit">메모 저장</button>
+                </form>
+                <div class="note-list" id="noteList" aria-live="polite"></div>
+              </section>
+            </div>
+          </div>
+
+          <section class="external-api-panel">
+            <div class="section-head">
+              <div><small>Connected Tools</small><h2>Notion · GitHub 연동</h2></div>
+              <span id="externalApiStatus">OAuth 대기</span>
+            </div>
+            <div class="integration-console">
+              <article class="integration-card">
+                <div class="integration-card-head">
+                  <div>
+                    <b>Notion</b>
+                    <small id="notionWorkspaceStatus">연동 상태 확인 중</small>
+                  </div>
+                  <div class="integration-actions">
+                    <button id="notionAuthorizeButton" type="button">OAuth 열기</button>
+                    <button id="notionDisconnectButton" type="button">해제</button>
+                  </div>
+                </div>
+                <div class="integration-actions full">
+                  <button id="loadNotionPagesButton" type="button">페이지 조회</button>
+                  <select id="notionPageSelect" aria-label="Notion 페이지 선택"></select>
+                  <button id="loadNotionBlocksButton" type="button">블록 조회</button>
+                </div>
+              </article>
+
+              <article class="integration-card">
+                <div class="integration-card-head">
+                  <div>
+                    <b>GitHub</b>
+                    <small id="githubAccountStatus">연동 상태 확인 중</small>
+                  </div>
+                  <div class="integration-actions">
+                    <button id="githubAuthorizeButton" type="button">OAuth 열기</button>
+                    <button id="githubDisconnectButton" type="button">해제</button>
+                  </div>
+                </div>
+                <div class="repo-inputs">
+                  <input id="githubOwnerInput" placeholder="owner">
+                  <input id="githubRepoInput" placeholder="repo">
+                </div>
+                <div class="integration-actions full">
+                  <button id="loadGithubReposButton" type="button">Repository 조회</button>
+                  <button data-github-resource="issues" type="button">Issue 조회</button>
+                  <button data-github-resource="commits" type="button">Commit 조회</button>
+                  <button data-github-resource="pulls" type="button">Pull Request 조회</button>
+                </div>
+              </article>
+            </div>
+            <div class="integration-result empty-state" id="integrationResult" aria-live="polite">
+              Notion 또는 GitHub를 연결하면 페이지, 블록, 저장소, 이슈, 커밋, Pull Request 결과가 이곳에 표시됩니다.
+            </div>
+          </section>
+        </div>
+
+        <div class="view" id="aiView">
+          <div class="top-tabs">
+            <button data-jump="dashboard" type="button">대시보드</button>
+            <button class="active" type="button">AI 채팅</button>
+            <button data-jump="meeting" type="button">회의 기록</button>
+            <button data-jump="community" type="button">커뮤니티</button>
+            <button data-jump="workspace" type="button">2분할 작업창</button>
+          </div>
+          <div class="chat" id="chatList">
+            <p class="chat-empty" id="chatEmpty">아직 대화가 없습니다. 아래 입력창에서 첫 메시지를 보내세요.</p>
+          </div>
+          <form class="chat-form" id="chatForm">
+            <input id="chatInput" placeholder="AI 또는 팀원에게 메시지 보내기">
+            <button type="submit">➤</button>
+          </form>
+        </div>
+
+        <div class="view" id="meetingView">
+          <div class="top-tabs">
+            <button data-jump="dashboard" type="button">대시보드</button>
+            <button data-jump="ai" type="button">AI 채팅</button>
+            <button class="active" type="button">회의 기록</button>
+            <button data-jump="community" type="button">커뮤니티</button>
+            <button data-jump="workspace" type="button">2분할 작업창</button>
+          </div>
+          <section class="meeting-detail" aria-label="회의 상세">
+            <header class="meeting-detail-head meeting-empty-head">
+              <h2>회의 기록</h2>
+              <p>Discord 연동 또는 녹음 파일 업로드로 만든 회의록이 이곳에 정리됩니다.</p>
+              <div class="meeting-action-buttons">
+                <button class="meeting-action-primary" id="meetingDiscordButton" type="button">Discord 연동</button>
+                <button id="meetingUploadButton" type="button">녹음 파일 업로드</button>
+                <input class="hidden" id="meetingAudioUpload" type="file" accept="audio/*">
+              </div>
+            </header>
+
+            <article class="meeting-empty-card" id="meetingEmptyCard">
+              <h3>아직 저장된 회의록이 없습니다.</h3>
+              <p>녹음 파일을 업로드하면 AI가 핵심 요약, 액션 아이템, 타임라인을 정리해서 보여줍니다.</p>
+            </article>
+
+            <article class="meeting-upload-panel hidden" id="meetingUploadPanel" aria-live="polite">
+              <div class="meeting-file-status">
+                <b id="meetingFileName">선택된 파일 없음</b>
+                <small id="meetingFileMeta">녹음 파일을 선택해 주세요.</small>
+              </div>
+              <audio class="hidden" id="meetingAudioPreview" controls></audio>
+              <div class="meeting-upload-actions">
+                <button id="sendMeetingAudioSummary" type="button" disabled>AI 요약 요청</button>
+                <button id="changeMeetingAudio" type="button">파일 다시 선택</button>
+              </div>
+              <p id="meetingUploadHelp">선택한 파일은 백엔드의 /ai/summarize로 전송됩니다.</p>
+            </article>
+          </section>
+        </div>
+
+        <div class="view" id="communityView">
+          <div class="top-tabs">
+            <button data-jump="dashboard" type="button">대시보드</button>
+            <button data-jump="ai" type="button">AI 채팅</button>
+            <button data-jump="meeting" type="button">회의 기록</button>
+            <button class="active" type="button">커뮤니티</button>
+            <button data-jump="workspace" type="button">2분할 작업창</button>
+          </div>
+          <section class="community">
+            <div class="community-head">
+              <h2>커뮤니티</h2>
+              <button class="write-btn" id="openPostComposer" type="button">글쓰기</button>
+            </div>
+            <form class="post-composer hidden" id="postComposer">
+              <input id="postTitle" placeholder="제목을 입력하세요">
+              <select id="postCategory">
+                <option value="자유게시판">자유게시판</option>
+                <option value="팀원 모집">팀원 모집</option>
+                <option value="프로젝트 쇼케이스">프로젝트 쇼케이스</option>
+              </select>
+              <textarea id="postContent" placeholder="내용을 입력하세요"></textarea>
+              <div class="composer-actions">
+                <button type="button" id="cancelPostComposer">취소</button>
+                <button type="submit" id="savePostButton">등록</button>
+              </div>
+            </form>
+            <div class="filters">
+              <button class="active" type="button" data-community-filter="전체">전체</button>
+              <button type="button" data-community-filter="자유게시판">자유게시판</button>
+              <button type="button" data-community-filter="팀원 모집">팀원 모집</button>
+              <button type="button" data-community-filter="프로젝트 쇼케이스">프로젝트 쇼케이스</button>
+            </div>
+            <div class="community-posts" id="communityPosts" aria-live="polite"></div>
+            <article class="community-detail hidden" id="communityDetail">
+              <button class="detail-back" id="backToCommunityList" type="button">← 목록</button>
+              <div class="detail-head">
+                <div>
+                  <small id="detailMeta"></small>
+                  <h3 id="detailTitle"></h3>
+                </div>
+                <div class="post-actions" id="detailActions"></div>
+              </div>
+              <p id="detailContent"></p>
+              <section class="comments-area">
+                <h4>댓글</h4>
+                <div class="comment-list" id="commentList"></div>
+                <form class="comment-form" id="commentForm">
+                  <input id="commentInput" placeholder="댓글을 입력하세요">
+                  <button type="submit">등록</button>
+                </form>
+              </section>
+            </article>
+          </section>
+        </div>
+
+        <div class="view" id="workspaceView">
+          <div class="top-tabs">
+            <button data-jump="dashboard" type="button">대시보드</button>
+            <button data-jump="ai" type="button">AI 채팅</button>
+            <button data-jump="meeting" type="button">회의 기록</button>
+            <button data-jump="community" type="button">커뮤니티</button>
+            <button class="active" type="button">2분할 작업창</button>
+          </div>
+          <section class="workspace-full">
+            <div class="workspace-full-head">
+              <div>
+                <small>Workspace</small>
+                <h2>2분할 작업창</h2>
+                <p>왼쪽과 오른쪽에 띄울 작업 화면을 고르면 아래 작업창 전체가 바로 2개로 나뉩니다.</p>
+              </div>
+            </div>
+            
+            <form class="layout-form workspace-controls" id="layoutForm">
+              <input id="splitType" type="hidden" value="vertical_2">
+              <label>왼쪽 패널
+                <select id="panelOneType">
+                  <option value="meeting_notes">회의록</option>
+                  <option value="notes">메모</option>
+                  <option value="browser">브라우저</option>
+                  <option value="ai_chat">AI 채팅</option>
+                </select>
+              </label>
+              <label>오른쪽 패널
+                <select id="panelTwoType">
+                  <option value="browser" selected>브라우저</option>
+                  <option value="meeting_notes">회의록</option>
+                  <option value="notes">메모</option>
+                  <option value="ai_chat">AI 채팅</option>
+                </select>
+              </label>
+              
+              <!-- 새 창 열기 버튼 제거 완료, 원래 형태 복구 -->
+              <label>브라우저 URL
+                <input id="panelTwoUrl" placeholder="https://..." value="https://github.com">
+              </label>
+              
+              <button type="submit">레이아웃 저장</button>
+            </form>
+
+            <div class="split-workspace large-split" id="splitWorkspace" aria-live="polite" style="display: flex; gap: 16px; margin-top: 16px; height: 500px;">
+              <section class="workspace-pane" id="workspacePaneOne" style="flex: 1; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; overflow: hidden; display: flex; flex-direction: column;"></section>
+              <section class="workspace-pane" id="workspacePaneTwo" style="flex: 1; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; overflow: hidden; display: flex; flex-direction: column;"></section>
+            </div>
+          </section>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <!-- 통합 활동 피드 모달 -->
+  <div class="activity-modal-overlay" id="activityModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;justify-content:center;align-items:center;">
+    <div class="activity-modal" style="background:#fff;border-radius:16px;width:90%;max-width:560px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.15);">
+      <div style="padding:16px 20px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;">
+        <h3 style="font-size:15px;font-weight:800;color:#1e293b;margin:0;">통합 활동 피드</h3>
+        <button type="button" id="closeActivityModal" style="background:none;border:none;font-size:18px;cursor:pointer;color:#94a3b8;">✕</button>
+      </div>
+      <div style="padding:12px 20px;border-bottom:1px solid #f1f5f9;display:flex;gap:6px;">
+        <button type="button" class="feed-tab active" data-feed-tab="figma" style="font-size:11px;padding:5px 12px;border-radius:20px;border:1px solid #a259ff;background:#a259ff;color:#fff;cursor:pointer;font-weight:600;">Figma</button>
+        <button type="button" class="feed-tab" data-feed-tab="discord" style="font-size:11px;padding:5px 12px;border-radius:20px;border:1px solid #ddd;background:#fff;color:#64748b;cursor:pointer;font-weight:600;">Discord</button>
+        <button type="button" class="feed-tab" data-feed-tab="github" style="font-size:11px;padding:5px 12px;border-radius:20px;border:1px solid #ddd;background:#fff;color:#64748b;cursor:pointer;font-weight:600;">GitHub</button>
+        <button type="button" class="feed-tab" data-feed-tab="notion" style="font-size:11px;padding:5px 12px;border-radius:20px;border:1px solid #ddd;background:#fff;color:#64748b;cursor:pointer;font-weight:600;">Notion</button>
+      </div>
+      <div id="activityFeedList" style="flex:1;overflow-y:auto;padding:12px 20px;">
+        <p style="text-align:center;color:#94a3b8;font-size:12px;padding:32px 0;">플랫폼을 선택하면 활동 피드가 표시됩니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="./script.js"></script>
+  
+  <!-- 2분할 작업창 렌더링 스크립트 -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const layoutForm = document.getElementById('layoutForm');
+      if (layoutForm) {
+        layoutForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          
+          const p1Type = document.getElementById('panelOneType').value;
+          const p2Type = document.getElementById('panelTwoType').value;
+          const url = document.getElementById('panelTwoUrl').value;
+
+          const titleMap = {
+            'meeting_notes': '회의록',
+            'notes': '메모',
+            'browser': '브라우저',
+            'ai_chat': 'AI 채팅'
+          };
+
+          function getPanelContent(type) {
+            const header = `<div style="display:flex; justify-content:space-between; padding:12px 16px; border-bottom:1px solid #e2e8f0; background:#f8fafc;">
+                              <span style="font-size:12px; color:#64748b; font-weight:600;">Panel</span>
+                              <span style="font-size:14px; font-weight:700; color:#1e293b;">${titleMap[type]}</span>
+                            </div>`;
+            
+            if (type === 'browser') {
+              return `${header}
+                      <div style="flex:1; background:#f1f5f9; position:relative;">
+                        <iframe src="${url}" style="width:100%; height:100%; border:none; position:absolute; top:0; left:0;"></iframe>
+                      </div>`;
+            } else if (type === 'ai_chat') {
+              return `${header}
+                      <div style="flex:1; display:flex; flex-direction:column; background:#fff;">
+                        <div style="flex:1; padding:16px; overflow-y:auto;">
+                          <p style="color:#94a3b8; font-size:13px; text-align:center;">AI 채팅이 연결되었습니다. 질문을 입력하세요.</p>
+                        </div>
+                        <div style="padding:12px; border-top:1px solid #e2e8f0; background:#f8fafc;">
+                          <form style="display:flex; gap:8px;" onsubmit="event.preventDefault(); alert('메인 AI 채팅창을 이용해주세요.');">
+                            <input type="text" placeholder="메시지를 입력하세요" style="flex:1; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;">
+                            <button type="submit" style="padding:8px 16px; background:#3b82f6; color:#fff; border:none; border-radius:6px; cursor:pointer;">전송</button>
+                          </form>
+                        </div>
+                      </div>`;
+            } else if (type === 'meeting_notes') {
+              return `${header}
+                      <div style="flex:1; display:flex; align-items:center; justify-content:center; padding:20px;">
+                        <div style="border:1px dashed #cbd5e1; border-radius:8px; padding:40px; width:100%; text-align:center; color:#94a3b8; font-size:14px;">
+                          저장된 회의록이 없습니다.
+                        </div>
+                      </div>`;
+            } else if (type === 'notes') {
+              return `${header}
+                      <div style="flex:1; display:flex; align-items:center; justify-content:center; padding:20px;">
+                        <div style="border:1px dashed #cbd5e1; border-radius:8px; padding:40px; width:100%; text-align:center; color:#94a3b8; font-size:14px;">
+                          작성된 메모가 없습니다.
+                        </div>
+                      </div>`;
+            }
+          }
+
+          document.getElementById('workspacePaneOne').innerHTML = getPanelContent(p1Type);
+          document.getElementById('workspacePaneTwo').innerHTML = getPanelContent(p2Type);
+        });
+        
+        layoutForm.dispatchEvent(new Event('submit'));
+      }
+    });
+  </script>
+
+  <!-- 가짜 채팅(script.js)을 덮어쓰고 실제 백엔드로 통신하는 스크립트 -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. 기존 script.js 이벤트 제거를 위해 노드 복제
+      const oldForm = document.getElementById('chatForm');
+      if(!oldForm) return;
+      
+      const chatForm = oldForm.cloneNode(true);
+      oldForm.parentNode.replaceChild(chatForm, oldForm);
+
+      const chatList = document.getElementById('chatList');
+      const chatInput = chatForm.querySelector('#chatInput');
+
+      // 2. 실제 백엔드 연동 폼 제출 이벤트
+      chatForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const message = chatInput.value.trim();
+        if (!message) return;
+
+        // "아직 대화가 없습니다" 문구 숨기기
+        const chatEmpty = document.getElementById('chatEmpty');
+        if (chatEmpty) chatEmpty.style.display = 'none';
+
+        // 3. 사용자 입력 채팅 말풍선 표시
+        const userMsgDiv = document.createElement('div');
+        userMsgDiv.style.cssText = "display:flex; justify-content:flex-end; margin-bottom:12px;";
+        userMsgDiv.innerHTML = `<div style="background:#3ba0e9; color:white; padding:10px 16px; border-radius:12px; max-width:80%; word-break:break-all;">${message}</div>`;
+        chatList.appendChild(userMsgDiv);
+
+        chatInput.value = '';
+        chatList.scrollTop = chatList.scrollHeight;
+
+        // 4. 백엔드로 POST 요청 전송
+        try {
+          const response = await fetch('/ai/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+          });
+          
+          const data = await response.json();
+
+          // 5. 백엔드에서 받은 AI 응답 말풍선 표시
+          const aiMsgDiv = document.createElement('div');
+          aiMsgDiv.style.cssText = "display:flex; justify-content:flex-start; margin-bottom:12px;";
+          aiMsgDiv.innerHTML = `<div style="background:#ffffff; border:1px solid #e2e8f0; color:#1e293b; padding:10px 16px; border-radius:12px; max-width:80%; line-height:1.5;">${data.reply}</div>`;
+          chatList.appendChild(aiMsgDiv);
+
+        } catch (error) {
+          const errDiv = document.createElement('div');
+          errDiv.style.cssText = "display:flex; justify-content:flex-start; margin-bottom:12px;";
+          errDiv.innerHTML = `<div style="background:#fee2e2; color:#b91c1c; padding:10px 16px; border-radius:12px;">서버 통신 에러가 발생했습니다. 백엔드가 켜져있는지 확인해주세요.</div>`;
+          chatList.appendChild(errDiv);
+        }
+        
+        chatList.scrollTop = chatList.scrollHeight;
+      });
+    });
+  </script>
+</body>
+</html>

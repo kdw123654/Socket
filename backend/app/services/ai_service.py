@@ -12,7 +12,7 @@ def get_openai_client() -> AsyncOpenAI:
         raise ValueError("OPENAI_API_KEY가 설정되지 않았습니다. .env 파일을 확인해 주세요.")
     return AsyncOpenAI(api_key=api_key)
 
-async def chat_with_ai(message: str, meeting_context: str = "") -> str:
+async def chat_with_ai(message: str) -> str:
     """AI 채팅 함수"""
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
@@ -20,13 +20,10 @@ async def chat_with_ai(message: str, meeting_context: str = "") -> str:
 
     try:
         client = get_openai_client()
-        system_content = "너는 프로젝트 협업 플랫폼 Prain의 스마트 AI 비서야. 팀원들의 프로젝트 현황, API 연동, 회의록 관련 질문에 친절하고 명확하게 답변해줘."
-        if meeting_context:
-            system_content += f"\n\n최근 회의록 요약:\n{meeting_context}"
         response = await client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": system_content},
+                {"role": "system", "content": "너는 프로젝트 협업 플랫폼 Prain의 스마트 AI 비서야. 팀원들의 프로젝트 현황, API 연동, 회의록 관련 질문에 친절하고 명확하게 답변해줘."},
                 {"role": "user", "content": message}
             ]
         )

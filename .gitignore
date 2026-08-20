@@ -1,20 +1,4 @@
-# 가상환경
-venv/
-.venv/
-env/
-pyvenv.cfg
-
-# 환경변수 및 비밀 키 (GitHub 차단 방지)
+node_modules/
+dist/
 .env
-backend/.env
-*.env
-
-# 데이터베이스 및 임시 오디오 파일
-*.db
-*.sqlite3
-prain.db
-temp_audio/
-
-# 파이썬 캐시
-__pycache__/
-*.py[cod]
+.npm-cache/

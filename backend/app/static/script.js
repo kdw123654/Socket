@@ -339,27 +339,11 @@ async function handleAuthSubmit(event) {
   const email = $('#authEmail').value.trim();
   const password = $('#authPassword').value.trim();
   const nickname = $('#authNickname').value.trim();
-  const message = $('#installMessage');
-
-  // 유효성 검증
   if (!email || !password || (state.authMode === 'signup' && !nickname)) {
-    message.textContent = '이메일, 비밀번호, 닉네임을 모두 입력해 주세요.';
-    return;
-  }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    message.textContent = '올바른 이메일 형식을 입력해 주세요.';
-    return;
-  }
-  if (password.length < 6) {
-    message.textContent = '비밀번호는 6자 이상이어야 합니다.';
-    return;
-  }
-  if (state.authMode === 'signup' && nickname.length < 2) {
-    message.textContent = '닉네임은 2자 이상 입력해 주세요.';
+    $('#installMessage').textContent = '이메일, 비밀번호, 닉네임을 입력해 주세요.';
     return;
   }
 
-  message.textContent = '';
   $('#authSubmit').disabled = true;
   $('#authSubmit').textContent = '처리 중';
   try {
@@ -371,14 +355,6 @@ async function handleAuthSubmit(event) {
     persistSession(loginResponse);
     setStatus('auth', isDemoResponse(loginResponse) ? '대기' : '연결됨', !isDemoResponse(loginResponse));
     showScreen('app');
-  } catch (err) {
-    const errorText = err.message || '처리 중 오류가 발생했습니다.';
-    try {
-      const parsed = JSON.parse(errorText);
-      message.textContent = parsed.detail || errorText;
-    } catch {
-      message.textContent = errorText;
-    }
   } finally {
     $('#authSubmit').disabled = false;
     $('#authSubmit').textContent = state.authMode === 'signup' ? '회원가입하고 시작하기' : '로그인하고 시작하기';
@@ -441,8 +417,6 @@ async function loadDiscordStatus() {
   const status = await apiRequest('/integrations/discord/status');
   const label = status.connected ? `${status.username || 'Discord'} 연결됨` : '연결 필요';
   $('#discordStatusText').textContent = label;
-  const info = $('#discordInfo');
-  if (info) info.textContent = status.connected ? `${status.username || 'Discord'} 계정 연결됨` : '미연동';
   const isLive = !isDemoResponse(status);
   setStatus('integrations', isLive && status.connected ? '연결됨' : '대기', isLive && status.connected);
 }
@@ -454,8 +428,6 @@ async function loadFigmaStatus() {
     username: status.username || '',
   };
   renderFigmaStatus();
-  const figmaInfo = $('#figmaInfo');
-  if (figmaInfo) figmaInfo.textContent = state.figma.connected ? `${state.figma.username || 'Figma'} 계정 연결됨` : '미연동';
   const isLive = !isDemoResponse(status);
   setStatus('figmaIntegration', isLive && state.figma.connected ? '연결됨' : '대기', isLive && state.figma.connected);
 }
@@ -635,8 +607,6 @@ async function loadNotionStatus() {
     workspace: status?.workspace_name || status?.workspace || status?.workspace_id || status?.username || '',
   };
   renderNotionStatus();
-  const notionInfo = $('#notionInfo');
-  if (notionInfo) notionInfo.textContent = state.notion.connected ? `${state.notion.workspace || 'Notion'} 워크스페이스 연결됨` : '미연동';
   const isLive = !isDemoResponse(status);
   setStatus('notion', isLive && state.notion.connected ? '연결됨' : '대기', isLive && state.notion.connected);
 }
@@ -651,10 +621,8 @@ async function loadGithubStatus() {
     username: status?.username || status?.login || status?.name || '',
   };
   renderGithubStatus();
-  const githubInfo = $('#githubInfo');
-  if (githubInfo) githubInfo.textContent = state.github.connected ? `${state.github.username || 'GitHub'} 계정 연결됨` : '미연동';
-  const isLive2 = !isDemoResponse(status);
-  setStatus('github', isLive2 && state.github.connected ? '연결됨' : '대기', isLive2 && state.github.connected);
+  const isLive = !isDemoResponse(status);
+  setStatus('github', isLive && state.github.connected ? '연결됨' : '대기', isLive && state.github.connected);
 }
 
 function notionPageId(page) {
@@ -1059,7 +1027,6 @@ async function handleFigmaFileSubmit(event) {
   const nodeId = $('#figmaNodeId').value.trim();
   const frameName = $('#figmaFrameName').value.trim();
   const actions = {
-    embed: { path: null, label: '파일 열기' },
     frames: { path: '/integrations/figma/frames', label: '프레임 조회' },
     comments: { path: '/integrations/figma/file-comments', label: '댓글 조회' },
     summarize: { path: '/integrations/figma/summarize', label: 'AI 요약' },
@@ -1068,17 +1035,6 @@ async function handleFigmaFileSubmit(event) {
 
   if (!fileKey) {
     renderFigmaEmpty('Figma 파일 키 또는 URL을 입력해 주세요.');
-    return;
-  }
-
-  // embed 액션: iframe으로 Figma 뷰어 표시
-  if (action === 'embed') {
-    const rawUrl = $('#figmaFileKey').value.trim();
-    const embedUrl = `https://www.figma.com/embed?embed_host=prain&url=${encodeURIComponent(rawUrl.includes('figma.com') ? rawUrl : 'https://www.figma.com/design/' + fileKey)}`;
-    $('#figmaEmbedIframe').src = embedUrl;
-    $('#figmaEmbedContainer').style.display = 'block';
-    setFigmaFileStatus('파일 열기 완료');
-    loadActivityFeed(fileKey);
     return;
   }
 
@@ -1106,8 +1062,6 @@ async function handleFigmaFileSubmit(event) {
     renderFigmaResult(action, data);
     setStatus('figmaFile', '호출됨');
     setFigmaFileStatus(`${actions[action].label} 완료`);
-    // 자동으로 활동 피드 로드
-    loadActivityFeed(fileKey);
   } catch {
     renderFigmaEmpty('Figma API 호출 중 문제가 생겼습니다. 백엔드 연결과 PAT 상태를 확인해 주세요.');
     setStatus('figmaFile', '오류', false);
@@ -1610,40 +1564,39 @@ const names = {
   ai: 'AI 채팅',
   meeting: '회의 기록',
   community: '커뮤니티',
+  workspace: '2분할 작업창',
 };
 
 function showView(name) {
   $$('.view').forEach((view) => view.classList.toggle('active', view.id === `${name}View`));
   $$('.side-link').forEach((button) => button.classList.toggle('active', button.dataset.view === name));
-  $('#viewTitle').textContent = names[name] || '아이디어 보드';
-  if (name === 'dashboard' && window.renderAppHub) {
-    window.renderAppHub();
-  }
+  $('#viewTitle').textContent = names[name];
+  if (name === 'workspace') renderWorkspacePreview();
 }
 
-$('#signupForm')?.addEventListener('submit', handleAuthSubmit);
+$('#signupForm').addEventListener('submit', handleAuthSubmit);
 $$('[data-auth-mode]').forEach((button) => button.addEventListener('click', () => setAuthMode(button.dataset.authMode)));
 $$('[data-next]').forEach((button) => button.addEventListener('click', () => showScreen('app')));
-$('#installDiscordBot')?.addEventListener('click', continueWithDiscord);
-$('#discordConnect')?.addEventListener('click', continueWithDiscord);
-$('#enterDashboard')?.addEventListener('click', () => showScreen('app'));
-$('#openProjectSetup')?.addEventListener('click', () => showScreen('connect'));
-$('#showFigmaGuide')?.addEventListener('click', () => $('#figmaGuide')?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
-$('#figmaPatForm')?.addEventListener('submit', handleFigmaPatSubmit);
-$('#disconnectFigmaPat')?.addEventListener('click', handleFigmaDisconnect);
+$('#installDiscordBot').addEventListener('click', continueWithDiscord);
+$('#discordConnect').addEventListener('click', continueWithDiscord);
+$('#enterDashboard').addEventListener('click', () => showScreen('app'));
+$('#openProjectSetup').addEventListener('click', () => showScreen('connect'));
+$('#showFigmaGuide').addEventListener('click', () => $('#figmaGuide').scrollIntoView({ behavior: 'smooth', block: 'center' }));
+$('#figmaPatForm').addEventListener('submit', handleFigmaPatSubmit);
+$('#disconnectFigmaPat').addEventListener('click', handleFigmaDisconnect);
 $$('.link-btn,.channel-btn').forEach((button) => {
   if (['showFigmaGuide', 'githubConnect', 'notionConnect', 'discordConnect'].includes(button.id)) return;
   button.addEventListener('click', () => button.closest('.tool')?.classList.add('connected'));
 });
 $$('[data-view]').forEach((button) => button.addEventListener('click', () => showView(button.dataset.view)));
 $$('[data-jump]').forEach((button) => button.addEventListener('click', () => showView(button.dataset.jump)));
-$('#refreshData')?.addEventListener('click', refreshAppData);
-$('#chatForm')?.addEventListener('submit', handleChatSubmit);
+$('#refreshData').addEventListener('click', refreshAppData);
+$('#chatForm').addEventListener('submit', handleChatSubmit);
 $('#summaryForm')?.addEventListener('submit', handleSummarySubmit);
 $('#audioSummaryForm')?.addEventListener('submit', handleAudioSummary);
-$('#noteForm')?.addEventListener('submit', handleNoteSubmit);
-$('#layoutForm')?.addEventListener('submit', handleLayoutSubmit);
-$('#figmaFileForm')?.addEventListener('submit', handleFigmaFileSubmit);
+$('#noteForm').addEventListener('submit', handleNoteSubmit);
+$('#layoutForm').addEventListener('submit', handleLayoutSubmit);
+$('#figmaFileForm').addEventListener('submit', handleFigmaFileSubmit);
 $('#notionConnect').addEventListener('click', continueWithNotion);
 $('#notionAuthorizeButton').addEventListener('click', continueWithNotion);
 $('#notionDisconnectButton').addEventListener('click', () => disconnectIntegration('notion'));
@@ -1690,146 +1643,3 @@ renderNotionPageOptions([]);
 renderWorkspacePreview();
 renderCommunityPosts();
 if (state.token) refreshAppData();
-
-// 로그아웃
-$('#logoutButton')?.addEventListener('click', async () => {
-  try {
-    await apiRequest('/auth/logout', { method: 'POST' });
-  } catch (e) {}
-  localStorage.removeItem(tokenKey);
-  localStorage.removeItem(userKey);
-  state.token = '';
-  state.user = null;
-  showScreen('auth');
-});
-
-// 통합 활동 피드 (Figma 코멘트)
-async function loadActivityFeed(fileKey) {
-  const feedList = $('#activityFeedList');
-  if (!feedList) return;
-
-  if (!state.figma.connected) {
-    feedList.innerHTML = '<p style="text-align:center;color:#94a3b8;font-size:12px;padding:32px 0;">Figma가 연동되지 않았습니다. 연동 설정에서 PAT를 등록해주세요.</p>';
-    return;
-  }
-
-  if (!fileKey) {
-    feedList.innerHTML = '<p style="text-align:center;color:#94a3b8;font-size:12px;padding:32px 0;">Figma 파일을 조회하면 최근 활동이 자동으로 표시됩니다.</p>';
-    return;
-  }
-
-  feedList.innerHTML = '<p style="text-align:center;color:#94a3b8;font-size:12px;padding:32px 0;">불러오는 중...</p>';
-
-  try {
-    const data = await apiRequest('/integrations/figma/file-comments', {
-      method: 'POST',
-      body: { file_key: fileKey },
-    });
-
-    if (!data.comments || data.comments.length === 0) {
-      feedList.innerHTML = '<p style="text-align:center;color:#94a3b8;font-size:12px;padding:32px 0;">이 파일에 활동 내역이 없습니다.</p>';
-      return;
-    }
-
-    feedList.innerHTML = data.comments.map((c) => {
-      const date = c.created_at ? new Date(c.created_at) : null;
-      const timeAgo = date ? getTimeAgo(date) : '';
-      return `<article class="feed-item">
-        <b>${c.message || '(코멘트)'}</b>
-        <small>Figma · ${c.user} · ${timeAgo}</small>
-      </article>`;
-    }).join('');
-
-    // 대시보드 프리뷰 (최신 1개)
-    const preview = $('#activityFeedPreview');
-    if (preview && data.comments.length > 0) {
-      const c = data.comments[0];
-      const date = c.created_at ? new Date(c.created_at) : null;
-      const timeAgo = date ? getTimeAgo(date) : '';
-      preview.innerHTML = `<article class="feed-item"><b>${c.message || '(코멘트)'}</b><small>Figma · ${c.user} · ${timeAgo}</small></article>`;
-    }
-  } catch (err) {
-    feedList.innerHTML = `<p style="text-align:center;color:#e55;font-size:12px;padding:32px 0;">${err.message || '피드를 불러올 수 없습니다.'}</p>`;
-  }
-}
-
-// 활동 피드 모달
-$('#openActivityModal')?.addEventListener('click', () => {
-  const modal = $('#activityModal');
-  modal.style.display = 'flex';
-  // 기본으로 Figma 탭 로드
-  switchFeedTab('figma');
-});
-
-$('#closeActivityModal')?.addEventListener('click', () => {
-  $('#activityModal').style.display = 'none';
-});
-
-$('#activityModal')?.addEventListener('click', (e) => {
-  if (e.target === e.currentTarget) $('#activityModal').style.display = 'none';
-});
-
-$$('.feed-tab').forEach((btn) => {
-  btn.addEventListener('click', () => switchFeedTab(btn.dataset.feedTab));
-});
-
-function switchFeedTab(tab) {
-  $$('.feed-tab').forEach((btn) => {
-    const isActive = btn.dataset.feedTab === tab;
-    btn.style.background = isActive ? (tab === 'figma' ? '#a259ff' : tab === 'discord' ? '#5865f2' : tab === 'github' ? '#24292f' : '#000') : '#fff';
-    btn.style.color = isActive ? '#fff' : '#64748b';
-    btn.style.borderColor = isActive ? 'transparent' : '#ddd';
-  });
-
-  const feedList = $('#activityFeedList');
-
-  if (tab === 'figma') {
-    const rawInput = $('#figmaFileKey')?.value?.trim();
-    const match = rawInput ? rawInput.match(/figma\.com\/(?:design|file)\/([a-zA-Z0-9]+)/) : null;
-    const fileKey = match ? match[1] : (rawInput || '');
-    if (fileKey && state.figma.connected) {
-      loadActivityFeed(fileKey);
-    } else if (!state.figma.connected) {
-      feedList.innerHTML = '<p style="text-align:center;color:#94a3b8;font-size:12px;padding:32px 0;">Figma 연동이 필요합니다. 연동 설정에서 PAT를 등록해주세요.</p>';
-    } else {
-      feedList.innerHTML = '<p style="text-align:center;color:#94a3b8;font-size:12px;padding:32px 0;">Figma 파일을 먼저 열면 코멘트가 표시됩니다.</p>';
-    }
-  } else if (tab === 'discord') {
-    feedList.innerHTML = '<p style="text-align:center;color:#94a3b8;font-size:12px;padding:32px 0;">Discord 활동 피드는 Bot 연동이 필요합니다. (준비 중)</p>';
-  } else if (tab === 'github') {
-    feedList.innerHTML = '<p style="text-align:center;color:#94a3b8;font-size:12px;padding:32px 0;">GitHub 활동 피드는 OAuth 연동 후 사용 가능합니다. (준비 중)</p>';
-  } else if (tab === 'notion') {
-    feedList.innerHTML = '<p style="text-align:center;color:#94a3b8;font-size:12px;padding:32px 0;">Notion 활동 피드는 OAuth 연동 후 사용 가능합니다. (준비 중)</p>';
-  }
-}
-
-function getTimeAgo(date) {
-  const diff = Math.floor((Date.now() - date.getTime()) / 1000);
-  if (diff < 60) return '방금 전';
-  if (diff < 3600) return `${Math.floor(diff / 60)}분 전`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}시간 전`;
-  return `${Math.floor(diff / 86400)}일 전`;
-}
-
-// Figma AI 요약 버튼 (embed 아래)
-$('#figmaAiSummarizeBtn')?.addEventListener('click', async () => {
-  const rawInput = $('#figmaFileKey')?.value?.trim();
-  if (!rawInput) return;
-
-  const match = rawInput.match(/figma\.com\/(?:design|file)\/([a-zA-Z0-9]+)/);
-  const fileKey = match ? match[1] : rawInput.split('/')[0].split('?')[0].trim();
-
-  const result = $('#figmaResult');
-  result.className = 'figma-result';
-  result.innerHTML = '<p style="text-align:center;color:#94a3b8;padding:24px;">AI가 Figma 파일을 분석 중입니다... (10~20초 소요)</p>';
-
-  try {
-    const data = await apiRequest('/integrations/figma/summarize', {
-      method: 'POST',
-      body: { file_key: fileKey },
-    });
-    result.innerHTML = '<div style="padding:16px;font-size:13px;line-height:1.7;color:#334155;">' + (data.summary || '요약 결과가 없습니다.').replace(/\n/g, '<br>') + '</div>';
-  } catch (err) {
-    result.innerHTML = `<p style="padding:16px;color:#e55;">${err.message || 'AI 요약 실패'}</p>`;
-  }
-});

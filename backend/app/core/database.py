@@ -37,7 +37,7 @@ async def init_db():
         from app.models.meeting_note import MeetingNote
         from app.models.note import Note
         from app.models.workspace import WorkspaceLayout
-        from app.models.integration import UserIntegration
+        from app.models.integration import Integration
     except ImportError:
         pass
 
