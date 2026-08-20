@@ -218,7 +218,18 @@
           <section class="external-api-panel">
             <div class="section-head">
               <div><small>Connected Tools</small><h2>Notion · GitHub 연동</h2></div>
-              <span id="externalApiStatus">OAuth 대기</span>
+              <div id="externalApiStatus">
+                <span id="externalApiStatusText">OAuth 대기</span>
+
+                <button
+                  type="button"
+                  onclick="closeNotionAnalysis()"
+                  class="notion-analysis-close"
+                >
+                  AI 분석 닫기
+                </button>
+                
+              </div>
             </div>
             <div class="integration-console">
               <article class="integration-card">
@@ -237,6 +248,17 @@
                   <select id="notionPageSelect" aria-label="Notion 페이지 선택"></select>
                   <button id="loadNotionBlocksButton" type="button">블록 조회</button>
                 </div>
+
+                <p <p style="
+                  margin-top: 22px;
+                  margin-bottom: 8px;
+                  font-size: 12px;
+                  color: #8aa2c3;
+                  font-weight: 500;
+                ">
+                  Notion 페이지와 GitHub Repository·Commit은 AI 분석을 지원합니다. 클릭해 분석 결과를 확인해 보세요.
+                </p>
+
               </article>
 
               <article class="integration-card">

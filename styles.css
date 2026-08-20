@@ -1955,3 +1955,25 @@ button:active {
 .figma-feed-form input {
   font-size: 11px;
 }
+
+.notion-analysis-close {
+  padding: 9px 16px;
+  min-width: 110px;
+  border: none;
+  border-radius: 10px;
+
+  background: #eef7ff;
+  color: #269be3;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+  transition: 0.2s;
+  flex-shrink: 0;
+}
+
+.notion-analysis-close:hover {
+  background: #dcefff;
+  color: #168bd1;
+}

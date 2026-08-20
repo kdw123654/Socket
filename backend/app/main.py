@@ -59,7 +59,7 @@ app.include_router(integrations.router, prefix=f"{settings.API_V1_STR}/integrati
 app.include_router(ai.router, prefix=f"{settings.API_V1_STR}/ai", tags=["AI Meeting Notes"])
 app.include_router(workspace.router, prefix=f"{settings.API_V1_STR}/workspace", tags=["Workspace"])
 app.include_router(ai.router, prefix="/api/v1/ai", tags=["AI"])
-app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
+
 # 4. 정적 파일 호스팅
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 if os.path.exists(os.path.join(ROOT_DIR, "index.html")):

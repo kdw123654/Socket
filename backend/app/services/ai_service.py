@@ -130,3 +130,201 @@ Figma 파일의 구조(페이지와 프레임 목록)와 팀원 코멘트를 바
             ]
         )
         return response.choices[0].message.content
+
+    @staticmethod
+    async def summarize_github_repository(
+        repo_name: str,
+        issues_text: str,
+        pulls_text: str,
+        commits_text: str
+    ) -> str:
+        """GitHub Repository의 Issue, Pull Request, Commit을 요약합니다."""
+
+        client = get_openai_client()
+
+        system_prompt = """
+당신은 소프트웨어 프로젝트 분석 전문가이자 시니어 개발자입니다.
+
+GitHub Repository의 Issue, Pull Request, Commit 정보를 바탕으로
+현재 프로젝트 상태를 마크다운 형식으로 정리하세요.
+
+다음 항목을 포함하세요:
+
+1. **Repository 개요**
+2. **주요 Issue**
+3. **Pull Request 현황**
+4. **최근 Commit 요약**
+5. **현재 개발 진행 상황**
+6. **핵심 액션 아이템**
+7. **주의사항 및 위험 요소**
+
+규칙:
+- 제공된 GitHub 데이터만 사용합니다.
+- 없는 Issue, PR, Commit을 만들어내지 않습니다.
+- 한국어로 작성합니다.
+- 팀원이 빠르게 이해할 수 있도록 간결하고 명확하게 정리합니다.
+"""
+
+        user_message = f"""
+## Repository
+{repo_name}
+
+## Issues
+{issues_text or "해당 내용 없음"}
+
+## Pull Requests
+{pulls_text or "해당 내용 없음"}
+
+## Commits
+{commits_text or "해당 내용 없음"}
+"""
+
+        response = await client.chat.completions.create(
+            model="gpt-4o-mini",
+            temperature=0.3,
+            max_tokens=1800,
+            messages=[
+                {
+                    "role": "system",
+                    "content": system_prompt
+                },
+                {
+                    "role": "user",
+                    "content": user_message
+                }
+            ]
+        )
+
+        return (
+            response.choices[0].message.content
+            or "GitHub 분석 결과가 없습니다."
+        )
+
+    @staticmethod
+    async def analyze_github_item(
+        item_type: str,
+        title: str,
+        content: str,
+        metadata: str = ""
+    ) -> str:
+        """선택한 GitHub 항목 하나를 AI로 분석합니다."""
+
+        client = get_openai_client()
+
+        system_prompt = """
+당신은 시니어 소프트웨어 엔지니어입니다.
+
+사용자가 선택한 GitHub 항목 하나를 분석하세요.
+항목은 Repository, Issue, Commit, Pull Request 중 하나입니다.
+
+다음 항목을 Markdown 형식으로 정리하세요:
+
+1. **핵심 내용**
+2. **현재 상태 또는 변경 내용**
+3. **프로젝트에 미치는 영향**
+4. **확인해야 할 사항**
+5. **다음 액션 아이템**
+
+규칙:
+- 제공된 정보만 사용합니다.
+- 없는 내용을 추측하지 않습니다.
+- 한국어로 작성합니다.
+- 개발자가 바로 이해할 수 있도록 간결하고 명확하게 작성합니다.
+"""
+
+        user_message = f"""
+## GitHub 항목 유형
+{item_type}
+
+## 제목
+{title}
+
+## 내용
+{content or "내용 없음"}
+
+## 추가 정보
+{metadata or "없음"}
+"""
+
+        response = await client.chat.completions.create(
+            model="gpt-4o-mini",
+            temperature=0.3,
+            max_tokens=1200,
+            messages=[
+                {
+                    "role": "system",
+                    "content": system_prompt
+                },
+                {
+                    "role": "user",
+                    "content": user_message
+                }
+            ]
+        )
+
+        return (
+            response.choices[0].message.content
+            or "GitHub 항목 분석 결과가 없습니다."
+        )
+
+
+    @staticmethod
+    async def summarize_notion_page(
+        page_title: str,
+        blocks_text: str
+    ) -> str:
+        """Notion 페이지 내용을 분석하여 요약합니다."""
+
+        client = get_openai_client()
+
+        system_prompt = """
+당신은 문서 분석 전문가이자 프로젝트 매니저입니다.
+
+Notion 페이지의 내용을 분석하여 팀원이 빠르게 이해할 수 있도록
+마크다운 형식으로 정리하세요.
+
+다음 항목을 포함하세요:
+
+1. **문서 개요**
+2. **핵심 내용**
+3. **주요 결정 사항**
+4. **일정 및 중요 날짜**
+5. **액션 아이템**
+6. **완료 / 미완료 작업**
+7. **주의사항 및 이슈**
+
+규칙:
+- 문서에 없는 내용을 만들어내지 않습니다.
+- 명시되지 않은 담당자나 날짜를 추측하지 않습니다.
+- 체크박스 상태가 있으면 완료/미완료를 구분합니다.
+- 한국어로 작성합니다.
+"""
+
+        user_message = f"""
+## Notion 페이지 제목
+{page_title or "제목 없음"}
+
+## 페이지 내용
+{blocks_text or "내용 없음"}
+"""
+
+        response = await client.chat.completions.create(
+            model="gpt-4o-mini",
+            temperature=0.3,
+            max_tokens=1800,
+            messages=[
+                {
+                    "role": "system",
+                    "content": system_prompt
+                },
+                {
+                    "role": "user",
+                    "content": user_message
+                }
+            ]
+        )
+
+        return (
+            response.choices[0].message.content
+            or "Notion 요약 결과가 없습니다."
+        )

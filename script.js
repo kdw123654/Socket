@@ -223,6 +223,12 @@ function demoResponse(path, options = {}) {
   if (path.includes('/integrations/notion/pages')) {
     return { pages: [] };
   }
+  if (path.includes('/integrations/notion/summarize')) {
+    return {
+      page_title: body.page_title || 'Notion 페이지',
+      summary: 'Notion AI 분석 API가 아직 연결되지 않았습니다.'
+    };
+  }
   if (path.endsWith('/integrations/notion') && options.method === 'DELETE') {
     return { message: 'Notion 연동 해제 요청이 준비되었습니다.' };
   }
@@ -243,6 +249,12 @@ function demoResponse(path, options = {}) {
   }
   if (path.includes('/integrations/github/repos')) {
     return { repos: [] };
+  }
+  if (path.includes('/integrations/github/analyze-item')) {
+  return {
+    title: body.title || 'GitHub 항목',
+    summary: 'GitHub AI 분석 API가 아직 연결되지 않았습니다.'
+    };
   }
   if (path.endsWith('/integrations/github') && options.method === 'DELETE') {
     return { message: 'GitHub 연동 해제 요청이 준비되었습니다.' };
@@ -548,9 +560,16 @@ function setIntegrationResult(message, empty = true) {
   root.textContent = message;
 }
 
-function renderIntegrationCards(title, items, emptyText, toViewModel) {
+function renderIntegrationCards(
+  title,
+  items,
+  emptyText,
+  toViewModel,
+  onClick = null
+) {
   const root = $('#integrationResult');
   if (!root) return;
+
   root.innerHTML = '';
   root.classList.remove('empty-state');
 
@@ -565,14 +584,181 @@ function renderIntegrationCards(title, items, emptyText, toViewModel) {
 
   items.slice(0, 10).forEach((item) => {
     const view = toViewModel(item);
+
     const card = document.createElement('article');
     card.className = 'integration-result-card';
+
     card.innerHTML = '<b></b><small></small><p></p>';
+
     $('b', card).textContent = view.title || '제목 없음';
     $('small', card).textContent = view.meta || '';
     $('p', card).textContent = view.text || '';
+
+    if (onClick) {
+      card.style.cursor = 'pointer';
+
+      card.addEventListener('click', () => {
+        onClick(item, view);
+      });
+    }
+
     root.append(card);
   });
+}
+
+async function analyzeGithubItem(itemType, item, view) {
+  $('#externalApiStatusText').textContent =
+    `GitHub ${itemType} AI 분석 중`;
+
+  setIntegrationResult('AI가 선택한 GitHub 항목을 분석하고 있습니다...');
+
+  const metadata = [
+    view.meta || '',
+    item.html_url ? `URL: ${item.html_url}` : '',
+    item.created_at ? `생성일: ${item.created_at}` : '',
+    item.updated_at ? `수정일: ${item.updated_at}` : '',
+    item.sha ? `SHA: ${item.sha}` : ''
+  ]
+    .filter(Boolean)
+    .join('\n');
+
+  const data = await apiRequest(
+    '/api/v1/integrations/github/analyze-item',
+    {
+      method: 'POST',
+      body: {
+        item_type: itemType,
+        title: view.title || '제목 없음',
+        content:
+          item.body ||
+          item.commit?.message ||
+          item.description ||
+          view.text ||
+          '',
+        metadata
+      },
+      fallbackPath: '/integrations/github/analyze-item'
+    }
+  );
+
+  if (isDemoResponse(data)) {
+    setIntegrationResult(
+      '아직 백엔드가 연결되지 않아 GitHub AI 분석을 실행할 수 없습니다.'
+    );
+
+    $('#externalApiStatusText').textContent =
+      'GitHub AI 분석 대기';
+
+    return;
+  }
+
+  const root = $('#integrationResult');
+
+  root.innerHTML = '';
+  root.classList.remove('empty-state');
+
+  const card = document.createElement('article');
+  card.className = 'integration-result-card';
+
+  card.innerHTML = `
+    <b></b>
+    <small>AI 분석 결과</small>
+    <pre style="white-space: pre-wrap;"></pre>
+  `;
+
+  $('b', card).textContent =
+    data.title || view.title || 'GitHub 분석';
+
+  $('pre', card).textContent =
+    data.summary || '분석 결과가 없습니다.';
+
+  root.append(card);
+
+  setDashboardSummary(data.summary);
+
+  $('#externalApiStatusText').textContent =
+    `GitHub ${itemType} AI 분석 완료`;
+}
+
+async function analyzeNotionPage(page) {
+  const pageId = notionPageId(page);
+  const pageTitle = notionPageTitle(page);
+
+  if (!pageId) {
+    setIntegrationResult('Notion 페이지 ID를 찾을 수 없습니다.');
+    return;
+  }
+
+  $('#externalApiStatusText').textContent =
+    'Notion 페이지 AI 분석 중';
+
+  setIntegrationResult(
+    'AI가 선택한 Notion 페이지를 분석하고 있습니다...'
+  );
+
+  const data = await apiRequest(
+    '/api/v1/integrations/notion/summarize',
+    {
+      method: 'POST',
+      body: {
+        page_id: pageId,
+        page_title: pageTitle
+      },
+      fallbackPath: '/integrations/notion/summarize'
+    }
+  );
+
+  if (isDemoResponse(data)) {
+    setIntegrationResult(
+      '아직 백엔드가 연결되지 않아 Notion AI 분석을 실행할 수 없습니다.'
+    );
+
+    $('#externalApiStatusText').textContent =
+      'Notion AI 분석 대기';
+
+    return;
+  }
+
+  const root = $('#integrationResult');
+
+  root.innerHTML = '';
+  root.classList.remove('empty-state');
+
+  const card = document.createElement('article');
+  card.className = 'integration-result-card';
+
+  card.innerHTML = `
+    <b></b>
+    <small>AI 분석 결과</small>
+    <pre style="white-space: pre-wrap;"></pre>
+  `;
+
+  $('b', card).textContent =
+    data.page_title || pageTitle || 'Notion 페이지';
+
+  $('pre', card).textContent =
+    data.summary || '분석 결과가 없습니다.';
+
+  root.append(card);
+
+  setDashboardSummary(data.summary);
+
+  $('#externalApiStatusText').textContent = 'Notion 페이지 AI 분석 완료';
+}
+
+function closeNotionAnalysis() {
+  const root = $('#integrationResult');
+
+  if (root) {
+    root.innerHTML = '';
+    root.classList.add('empty-state');
+  }
+
+  const statusText = $('#externalApiStatusText');
+
+  if (statusText) {
+    statusText.textContent = '';
+  }
 }
 
 async function openIntegrationOAuth(provider) {
@@ -585,7 +771,7 @@ async function openIntegrationOAuth(provider) {
   if (isDemoResponse(data) || !authorizeUrl) {
     const message = `아직 백엔드가 연결되지 않아 ${label} OAuth URL을 받을 수 없습니다.`;
     $('#installMessage').textContent = message;
-    $('#externalApiStatus').textContent = `${label} OAuth 대기`;
+    $('#externalApiStatusText').textContent = `${label} OAuth 대기`;
     setIntegrationResult(message);
     setStatus(provider, '대기', false);
     return;
@@ -593,11 +779,11 @@ async function openIntegrationOAuth(provider) {
 
   window.open(authorizeUrl, '_blank', 'noopener,noreferrer');
   $('#installMessage').textContent = `${label} 승인 창을 열었습니다. 승인 후 새로고침하면 상태가 반영됩니다.`;
-  $('#externalApiStatus').textContent = `${label} OAuth 진행 중`;
+  $('#externalApiStatusText').textContent = `${label} OAuth 진행 중`;
   setStatus(provider, 'OAuth 열림', false);
 }
 
-function continueWithNotion() {
+function continueWithNotion() { 
   return openIntegrationOAuth('notion');
 }
 
@@ -688,7 +874,7 @@ function renderNotionPageOptions(pages) {
 }
 
 async function loadNotionPages() {
-  $('#externalApiStatus').textContent = 'Notion 페이지 조회 중';
+  $('#externalApiStatusText').textContent = 'Notion 페이지 조회 중';
   const data = await apiRequest('/api/v1/integrations/notion/pages', {
     fallbackPath: '/integrations/notion/pages',
   });
@@ -698,17 +884,34 @@ async function loadNotionPages() {
 
   if (isDemoResponse(data)) {
     setStatus('notion', '대기', false);
-    $('#externalApiStatus').textContent = 'Notion 대기';
+    $('#externalApiStatusText').textContent = 'Notion 대기';
     setIntegrationResult('아직 백엔드가 연결되지 않아 Notion 페이지를 불러올 수 없습니다.');
     return;
   }
 
-  renderIntegrationCards('Notion 페이지', pages, '조회된 Notion 페이지가 없습니다.', (page) => ({
+  renderIntegrationCards(
+  'Notion 페이지',
+  pages,
+  '조회된 Notion 페이지가 없습니다.',
+
+  (page) => ({
     title: notionPageTitle(page),
     meta: notionPageId(page),
     text: page.url || page.workspace_name || '',
-  }));
-  $('#externalApiStatus').textContent = 'Notion 페이지 조회 완료';
+  }),
+
+  (page) => {
+    const pageId = notionPageId(page);
+
+    // select도 클릭한 페이지로 맞춰줌
+    if ($('#notionPageSelect')) {
+      $('#notionPageSelect').value = pageId;
+    }
+
+    analyzeNotionPage(page);
+  }
+);
+  $('#externalApiStatusText').textContent = 'Notion 페이지 조회 완료';
   setStatus('notion', '조회됨');
 }
 
@@ -719,7 +922,7 @@ async function loadNotionBlocks() {
     return;
   }
 
-  $('#externalApiStatus').textContent = 'Notion 블록 조회 중';
+  $('#externalApiStatusText').textContent = 'Notion 블록 조회 중';
   const path = `/api/v1/integrations/notion/pages/${encodeURIComponent(pageId)}/blocks`;
   const data = await apiRequest(path, {
     fallbackPath: `/integrations/notion/pages/${encodeURIComponent(pageId)}/blocks`,
@@ -728,7 +931,7 @@ async function loadNotionBlocks() {
 
   if (isDemoResponse(data)) {
     setStatus('notion', '대기', false);
-    $('#externalApiStatus').textContent = 'Notion 대기';
+    $('#externalApiStatusText').textContent = 'Notion 대기';
     setIntegrationResult('아직 백엔드가 연결되지 않아 Notion 블록을 불러올 수 없습니다.');
     return;
   }
@@ -748,7 +951,7 @@ async function loadNotionBlocks() {
     $('#integrationResult').append(card);
   }
 
-  $('#externalApiStatus').textContent = 'Notion 블록 조회 완료';
+  $('#externalApiStatusText').textContent = 'Notion 블록 조회 완료';
   setStatus('notion', '조회됨');
 }
 
@@ -766,7 +969,7 @@ function fillGithubRepoInputs(repo) {
 }
 
 async function loadGithubRepos() {
-  $('#externalApiStatus').textContent = 'GitHub Repository 조회 중';
+  $('#externalApiStatusText').textContent = 'GitHub Repository 조회 중';
   const data = await apiRequest('/api/v1/integrations/github/repos', {
     fallbackPath: '/integrations/github/repos',
   });
@@ -776,17 +979,26 @@ async function loadGithubRepos() {
 
   if (isDemoResponse(data)) {
     setStatus('github', '대기', false);
-    $('#externalApiStatus').textContent = 'GitHub 대기';
+    $('#externalApiStatusText').textContent = 'GitHub 대기';
     setIntegrationResult('아직 백엔드가 연결되지 않아 GitHub Repository를 불러올 수 없습니다.');
     return;
   }
 
-  renderIntegrationCards('GitHub Repository', repos, '조회된 GitHub Repository가 없습니다.', (repo) => ({
+  renderIntegrationCards(
+  'GitHub Repository',
+  repos,
+  '조회된 GitHub Repository가 없습니다.',
+  (repo) => ({
     title: githubRepoName(repo),
     meta: repo.private ? 'private' : 'public',
     text: repo.description || repo.html_url || '',
-  }));
-  $('#externalApiStatus').textContent = 'GitHub Repository 조회 완료';
+  }),
+  (repo, view) => {
+    fillGithubRepoInputs(repo);
+    analyzeGithubItem('Repository', repo, view);
+  }
+);
+  $('#externalApiStatusText').textContent = 'GitHub Repository 조회 완료';
   setStatus('github', '조회됨');
 }
 
@@ -807,7 +1019,7 @@ async function loadGithubResource(kind) {
   }
 
   const label = githubResourceTitle(kind);
-  $('#externalApiStatus').textContent = `GitHub ${label} 조회 중`;
+  $('#externalApiStatusText').textContent = `GitHub ${label} 조회 중`;
   const path = `/api/v1/integrations/github/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/${kind}`;
   const data = await apiRequest(path, {
     fallbackPath: `/integrations/github/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/${kind}`,
@@ -816,17 +1028,45 @@ async function loadGithubResource(kind) {
 
   if (isDemoResponse(data)) {
     setStatus('github', '대기', false);
-    $('#externalApiStatus').textContent = 'GitHub 대기';
+    $('#externalApiStatusText').textContent = 'GitHub 대기';
     setIntegrationResult(`아직 백엔드가 연결되지 않아 GitHub ${label}를 불러올 수 없습니다.`);
     return;
   }
 
-  renderIntegrationCards(`GitHub ${label}`, items, `조회된 GitHub ${label}가 없습니다.`, (item) => ({
-    title: item.title || item.commit?.message?.split('\n')[0] || item.name || item.sha || `${label} 항목`,
-    meta: item.number ? `#${item.number} · ${item.state || ''}` : item.sha || item.author?.login || item.commit?.author?.name || '',
-    text: item.body || item.html_url || item.commit?.message || readableJson(item),
-  }));
-  $('#externalApiStatus').textContent = `GitHub ${label} 조회 완료`;
+  renderIntegrationCards(
+  `GitHub ${label}`,
+  items,
+  `조회된 GitHub ${label}가 없습니다.`,
+  (item) => ({
+    title:
+      item.title ||
+      item.message?.split('\n')[0] ||
+      item.commit?.message?.split('\n')[0] ||
+      item.name ||
+      item.sha ||
+      `${label} 항목`,
+
+    meta:
+      item.number
+        ? `#${item.number} · ${item.state || ''}`
+        : item.sha ||
+          item.author?.login ||
+          item.commit?.author?.name ||
+          '',
+
+    text:
+      item.body ||
+      item.message ||
+      item.commit?.message ||
+      item.html_url ||
+      readableJson(item),
+  }),
+
+  (item, view) => {
+    analyzeGithubItem(label, item, view);
+  }
+);
+  $('#externalApiStatusText').textContent = `GitHub ${label} 조회 완료`;
   setStatus('github', '조회됨');
 }
 
@@ -848,7 +1088,7 @@ async function disconnectIntegration(provider) {
 
   setStatus(provider, '대기', false);
   setIntegrationResult(isDemoResponse(data) ? `아직 백엔드가 연결되지 않아 ${label} 연동 해제를 확인할 수 없습니다.` : data?.message || `${label} 연동을 해제했습니다.`);
-  $('#externalApiStatus').textContent = `${label} 연동 대기`;
+  $('#externalApiStatusText').textContent = `${label} 연동 대기`;
 }
 
 async function loadMeetings() {
