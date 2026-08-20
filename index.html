@@ -83,7 +83,7 @@
           <i data-lucide="message-square" class="w-4 h-4"></i>
           <span>Discord로 계속하기</span>
         </button>
-        <button onclick="alert('GitHub OAuth는 준비 중입니다.')" class="w-full py-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 rounded-2xl text-xs font-bold flex items-center justify-center gap-2.5 transition shadow-sm">
+        <button onclick="connectGitHubOAuth()" class="w-full py-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 rounded-2xl text-xs font-bold flex items-center justify-center gap-2.5 transition shadow-sm">
           <i data-lucide="github" class="w-4 h-4"></i>
           <span>GitHub로 계속하기</span>
         </button>
@@ -177,6 +177,21 @@
               <i data-lucide="figma" class="w-3.5 h-3.5"></i>
               <span>Figma 연동하기</span>
             </button>
+
+            <button onclick="connectGitHubOAuth()"
+              id="btn-github-connect"
+              class="w-full mt-2 py-2.5 border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 rounded-2xl text-xs font-bold transition flex items-center justify-center gap-1.5">
+              <i data-lucide="github" class="w-3.5 h-3.5"></i>
+              <span>GitHub 연동하기</span>
+            </button>
+            
+            <button onclick="connectNotionOAuth()"
+              id="btn-notion-connect"
+              class="w-full mt-2 py-2.5 border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 rounded-2xl text-xs font-bold transition flex items-center justify-center gap-1.5">
+              <i data-lucide="notebook" class="w-3.5 h-3.5"></i>
+              <span>Notion 연동하기</span>
+            </button>
+
           </div>
           <!-- 중앙: 활동 피드 -->
           <div class="w-2/3 bg-white p-6 rounded-3xl border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col">
@@ -203,7 +218,7 @@
                 </div>
               </div>
             </div>
-          </div>v>
+          </div>
           </div>
         </div>
 
@@ -222,8 +237,36 @@
           <div id="installed-tools-grid" class="grid grid-cols-5 gap-3.5"></div>
         </div>
 
+        <!-- 협업 도구 AI 탭 -->
+        <div class="flex items-center gap-2 mt-3 mb-3 ml-4">
+
+          <button
+            id="tab-figma"
+            onclick="switchAITool('figma')"
+            class="ai-tool-tab px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 text-white transition">
+            Figma
+          </button>
+
+          <button
+            id="tab-github"
+            onclick="switchAITool('github')"
+            class="ai-tool-tab px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-500 hover:bg-slate-200 transition">
+            GitHub
+          </button>
+
+          <button
+            id="tab-notion"
+            onclick="switchAITool('notion')"
+            class="ai-tool-tab px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-500 hover:bg-slate-200 transition">
+            Notion
+          </button>
+
+        </div>
+
         <!-- Figma AI 프레임 분석 -->
-        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+        <div
+          id="ai-tool-figma"
+          class="bg-white p-6 rounded-3xl border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
           <div class="flex items-center justify-between mb-4">
             <div>
               <h3 class="text-sm font-black text-slate-900">🎨 Figma 디자인 → AI 구현 가이드</h3>
@@ -253,7 +296,7 @@
           </div>
 
           <!-- 프레임 목록 (썸네일) -->
-          <div id="figma-frames-list" class="grid grid-cols-3 gap-2 mb-4"></div>
+          <div id="figma-frames-list" class="grid grid-cols-3 gap-2"></div>
 
           <!-- AI 분석 결과 -->
           <div id="figma-analysis-result" class="hidden bg-slate-50 border border-slate-200 rounded-2xl p-5">
@@ -264,6 +307,155 @@
             <div id="figma-analysis-content" class="prose text-xs text-slate-700 leading-relaxed"></div>
           </div>
         </div>
+
+        <!-- GitHub AI Repository 요약 -->
+        <div
+          id="ai-tool-github"
+          class="hidden bg-white p-6 rounded-3xl border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-sm font-black text-slate-900">
+                🐙 GitHub Repository → AI 요약
+              </h3>
+
+              <p class="text-xs text-slate-400 mt-0.5">
+                Repository를 선택하면 Issue, Pull Request, Commit을 AI가 요약해줍니다.
+              </p>
+            </div>
+
+            <div id="github-status" class="flex items-center gap-2">
+
+              <span
+                id="github-badge"
+                class="hidden px-3 py-1 bg-slate-100 text-slate-700 text-[11px] font-bold rounded-lg">
+              </span>
+
+              <button
+                onclick="connectGitHubOAuth()"
+                id="btn-github-ai-connect"
+                class="px-3 py-1.5 bg-slate-900 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition">
+                GitHub 연동
+              </button>
+
+            </div>
+          </div>
+
+
+          <!-- Repository 불러오기 -->
+          <div class="flex gap-3 mb-4">
+
+            <div
+              class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-400">
+              연동된 GitHub 계정의 Repository를 불러옵니다.
+            </div>
+
+            <button
+              onclick="toggleGitHubRepos()"
+              id="btn-github-repos"
+              class="px-4 py-2 bg-slate-900 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition shrink-0">
+              Repository 불러오기
+            </button>
+
+          </div>
+
+
+          <!-- Repository 목록 -->
+          <div
+            id="github-repos-list"
+            class="space-y-2 mb-4">
+          </div>
+
+
+          <!-- AI 요약 결과 -->
+          <div
+            id="github-summary-result"
+            class="hidden bg-slate-50 border border-slate-200 rounded-2xl p-5">
+
+            <div class="flex items-center gap-2 mb-3">
+              <i data-lucide="sparkles" class="w-4 h-4 text-slate-700"></i>
+
+              <span class="text-xs font-bold text-slate-900">
+                AI Repository 요약
+              </span>
+            </div>
+
+            <div
+              id="github-summary-content"
+              class="prose text-xs text-slate-700 leading-relaxed">
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Notion AI 페이지 요약 -->
+        <div
+          id="ai-tool-notion"
+          class="hidden bg-white p-6 rounded-3xl border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-sm font-black text-slate-900">📝 Notion 페이지 → AI 요약</h3>
+              <p class="text-xs text-slate-400 mt-0.5">
+                Notion 페이지를 선택하면 AI가 주요 내용을 분석하고 요약해줍니다.
+              </p>
+            </div>
+
+            <div id="notion-status" class="flex items-center gap-2">
+              <span
+                id="notion-badge"
+                class="hidden px-3 py-1 bg-slate-100 text-slate-700 text-[11px] font-bold rounded-lg">
+              </span>
+
+              <button
+                onclick="connectNotionOAuth()"
+                id="btn-notion-ai-connect"
+                class="px-3 py-1.5 bg-slate-900 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition">
+                Notion 연동
+              </button>
+            </div>
+          </div>
+
+          <!-- Notion 페이지 불러오기 -->
+          <div class="flex gap-3 mb-4">
+            <div
+              class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-400">
+              연동된 Notion 워크스페이스의 페이지를 불러옵니다.
+            </div>
+
+            <button
+              onclick="toggleNotionPages()"
+              id="btn-notion-pages"
+              class="px-4 py-2 bg-slate-900 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition shrink-0">
+              페이지 불러오기
+            </button>
+          </div>
+
+          <!-- Notion 페이지 목록 -->
+          <div
+            id="notion-pages-list"
+            class="space-y-2 mb-4">
+          </div>
+
+          <!-- AI 요약 결과 -->
+          <div
+            id="notion-summary-result"
+            class="hidden bg-slate-50 border border-slate-200 rounded-2xl p-5">
+
+            <div class="flex items-center gap-2 mb-3">
+              <i data-lucide="sparkles" class="w-4 h-4 text-slate-700"></i>
+              <span class="text-xs font-bold text-slate-900">
+                AI 페이지 요약
+              </span>
+            </div>
+
+            <div
+              id="notion-summary-content"
+              class="prose text-xs text-slate-700 leading-relaxed">
+            </div>
+          </div>
+        </div>
+
       </section>
 
       <!-- ========================================================= -->
@@ -609,6 +801,8 @@
         document.getElementById('user-nickname-tag').innerText = user.nickname || user.email;
         checkDiscord();
         checkFigmaPAT();
+        checkGitHub();
+        checkNotion();
         renderUserTools();
         renderCommunityPosts();
         loadMeetings();
@@ -1292,6 +1486,582 @@
         contentDiv.innerHTML = `<div class="text-rose-500">${err.message}</div>`;
       }
     }
+
+    // --- [11. GitHub OAuth 연동] ---
+    async function checkGitHub() {
+  const token = localStorage.getItem('prain_token');
+  if (!token) return;
+
+  try {
+    const res = await fetch('/api/v1/integrations/github/status', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    const data = await res.json();
+
+    console.log('GitHub status:', data);
+
+    if (data.connected) {
+      console.log(`GitHub 연결됨: ${data.username || ''}`);
+    }
+  } catch (e) {
+    console.error('GitHub 상태 확인 실패:', e);
+  }
+}
+
+async function connectGitHubOAuth() {
+  const token = localStorage.getItem('prain_token');
+
+  if (!token) {
+    return alert('먼저 이메일 로그인을 완료해주세요.');
+  }
+
+  try {
+    const res = await fetch('/api/v1/integrations/github/authorize', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.detail || 'GitHub 연동에 실패했습니다.');
+    }
+
+    if (data.authorize_url) {
+      window.open(
+        data.authorize_url,
+        'github_auth',
+        'width=580,height=720'
+      );
+    }
+  } catch (err) {
+    alert(err.message);
+  }
+}
+
+async function loadGitHubRepos() {
+  const token = localStorage.getItem('prain_token');
+  const container = document.getElementById('github-repos-list');
+
+  if (!token) {
+    return alert('로그인이 필요합니다.');
+  }
+
+  container.innerHTML = `
+    <div class="text-xs text-slate-400">
+      GitHub Repository를 불러오는 중...
+    </div>
+  `;
+
+  try {
+    const res = await fetch('/api/v1/integrations/github/repos', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(
+        data.detail || 'GitHub Repository 조회에 실패했습니다.'
+      );
+    }
+
+    if (!data.length) {
+      container.innerHTML = `
+        <div class="text-xs text-slate-400">
+          조회된 Repository가 없습니다.
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = data.map(repo => {
+
+      const [owner, repoName] = repo.full_name.split('/');
+
+      return `
+        <button
+          onclick='summarizeGitHubRepo(
+            ${JSON.stringify(owner)},
+            ${JSON.stringify(repoName)}
+          )'
+          class="w-full flex items-center justify-between p-3
+                 bg-slate-50 hover:bg-slate-100
+                 border border-slate-200 rounded-xl
+                 transition text-left">
+
+          <div class="min-w-0">
+
+            <div class="flex items-center gap-2">
+
+              <i data-lucide="github"
+                 class="w-3.5 h-3.5 text-slate-700">
+              </i>
+
+              <div class="text-xs font-bold text-slate-800 truncate">
+                ${repo.full_name}
+              </div>
+
+              ${
+                repo.private
+                  ? `<span class="text-[9px] px-2 py-0.5 bg-slate-200 text-slate-500 rounded-full">Private</span>`
+                  : ''
+              }
+
+            </div>
+
+            <div class="text-[10px] text-slate-400 mt-1 truncate">
+              ${repo.description || '설명 없음'}
+            </div>
+
+          </div>
+
+          <span class="text-[11px] text-slate-700 font-bold shrink-0 ml-3">
+            AI 요약
+          </span>
+
+        </button>
+      `;
+    }).join('');
+
+    lucide.createIcons();
+
+  } catch (err) {
+
+    console.error('GitHub Repository 조회 실패:', err);
+
+    container.innerHTML = `
+      <div class="text-xs text-rose-500">
+        ${err.message}
+      </div>
+    `;
+  }
+}
+
+async function summarizeGitHubRepo(owner, repo) {
+  const token = localStorage.getItem('prain_token');
+
+  if (!token) {
+    return alert('로그인이 필요합니다.');
+  }
+
+  const resultDiv =
+    document.getElementById('github-summary-result');
+
+  const contentDiv =
+    document.getElementById('github-summary-content');
+
+  resultDiv.classList.remove('hidden');
+
+  contentDiv.innerHTML = `
+    <div class="text-center py-6 text-slate-400">
+      AI가 ${owner}/${repo} Repository를 분석하고 있습니다...
+    </div>
+  `;
+
+  resultDiv.scrollIntoView({
+    behavior: 'smooth',
+    block: 'center'
+  });
+
+  try {
+
+    const res = await fetch(
+      '/api/v1/integrations/github/summarize',
+      {
+        method: 'POST',
+
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+
+        body: JSON.stringify({
+          owner: owner,
+          repo: repo
+        })
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(
+        data.detail || 'GitHub AI 요약에 실패했습니다.'
+      );
+    }
+
+    if (typeof marked !== 'undefined') {
+      contentDiv.innerHTML = marked.parse(
+        data.summary || '요약 결과가 없습니다.'
+      );
+    } else {
+      contentDiv.innerText =
+        data.summary || '요약 결과가 없습니다.';
+    }
+
+    // AI 분석 완료 → Repository 목록 숨기기
+    document
+      .getElementById('github-repos-list')
+      .classList.add('hidden');
+
+    // 버튼을 "목록 보기"로 변경
+    document
+      .getElementById('btn-github-repos')
+      .textContent = '목록 보기';
+
+  } catch (err) {
+
+    console.error('GitHub AI 요약 실패:', err);
+
+    contentDiv.innerHTML = `
+      <div class="text-rose-500">
+        ${err.message}
+      </div>
+    `;
+  }
+}
+
+async function connectNotionOAuth() {
+  const token = localStorage.getItem('prain_token');
+
+  if (!token) {
+    return alert('먼저 이메일 로그인을 완료해주세요.');
+  }
+
+  try {
+    const res = await fetch('/api/v1/integrations/notion/authorize', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.detail || 'Notion 연동에 실패했습니다.');
+    }
+
+    if (data.authorize_url) {
+      window.open(
+        data.authorize_url,
+        'notion_auth',
+        'width=580,height=720'
+      );
+    }
+  } catch (err) {
+    console.error('Notion OAuth 실패:', err);
+    alert(err.message);
+  }
+}
+
+
+// --- [12. Notion 페이지 조회 & AI 요약] ---
+async function loadNotionPages() {
+  const token = localStorage.getItem('prain_token');
+  const container = document.getElementById('notion-pages-list');
+
+  if (!token) {
+    return alert('로그인이 필요합니다.');
+  }
+
+  container.innerHTML = `
+    <div class="text-xs text-slate-400">
+      Notion 페이지를 불러오는 중...
+    </div>
+  `;
+
+  try {
+    const res = await fetch('/api/v1/integrations/notion/pages', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(
+        data.detail || 'Notion 페이지 조회에 실패했습니다.'
+      );
+    }
+
+    if (!data.length) {
+      container.innerHTML = `
+        <div class="text-xs text-slate-400">
+          조회된 Notion 페이지가 없습니다.
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = data.map(page => {
+      const pageId = JSON.stringify(page.id);
+      const pageTitle = JSON.stringify(page.title || '제목 없음');
+
+      return `
+        <button
+          onclick='summarizeNotionPage(${pageId}, ${pageTitle})'
+          class="w-full flex items-center justify-between p-3
+                 bg-slate-50 hover:bg-slate-100
+                 border border-slate-200 rounded-xl
+                 transition text-left">
+
+          <div class="min-w-0">
+            <div class="text-xs font-bold text-slate-800 truncate">
+              ${page.title || '제목 없음'}
+            </div>
+
+            <div class="text-[10px] text-slate-400 mt-1">
+              ${
+                page.last_edited_time
+                  ? new Date(page.last_edited_time).toLocaleString()
+                  : ''
+              }
+            </div>
+          </div>
+
+          <span class="text-[11px] text-slate-700 font-bold shrink-0 ml-3">
+            AI 요약
+          </span>
+        </button>
+      `;
+    }).join('');
+
+    lucide.createIcons();
+
+  } catch (err) {
+    console.error('Notion 페이지 조회 실패:', err);
+
+    container.innerHTML = `
+      <div class="text-xs text-rose-500">
+        ${err.message}
+      </div>
+    `;
+  }
+}
+
+// --- [13. Notion 페이지 AI 요약] ---
+async function summarizeNotionPage(pageId, pageTitle) {
+  const token = localStorage.getItem('prain_token');
+
+  if (!token) {
+    return alert('로그인이 필요합니다.');
+  }
+
+  const resultDiv = document.getElementById('notion-summary-result');
+  const contentDiv = document.getElementById('notion-summary-content');
+
+  resultDiv.classList.remove('hidden');
+
+  contentDiv.innerHTML = `
+    <div class="text-center py-6 text-slate-400">
+      AI가 "${pageTitle}" 페이지를 요약하고 있습니다...
+    </div>
+  `;
+
+  resultDiv.scrollIntoView({
+    behavior: 'smooth',
+    block: 'center'
+  });
+
+  try {
+    const res = await fetch(
+      '/api/v1/integrations/notion/summarize',
+      {
+        method: 'POST',
+
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+
+        body: JSON.stringify({
+          page_id: pageId,
+          page_title: pageTitle
+        })
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(
+        data.detail || 'Notion AI 요약에 실패했습니다.'
+      );
+    }
+
+    if (typeof marked !== 'undefined') {
+      contentDiv.innerHTML = marked.parse(
+        data.summary || '요약 결과가 없습니다.'
+      );
+    } else {
+      contentDiv.innerText =
+        data.summary || '요약 결과가 없습니다.';
+    }
+    // AI 분석 완료 → 페이지 목록 숨기기
+    document
+      .getElementById('notion-pages-list')
+      .classList.add('hidden');
+
+    // 버튼을 "목록 보기"로 변경
+    document
+      .getElementById('btn-notion-pages')
+      .textContent = '목록 보기';
+
+  } catch (err) {
+    console.error('Notion AI 요약 실패:', err);
+
+    contentDiv.innerHTML = `
+      <div class="text-rose-500">
+        ${err.message}
+      </div>
+    `;
+  }
+}
+
+// --- [14. Notion 페이지 목록 토글] ---
+function toggleNotionPages() {
+    const list = document.getElementById('notion-pages-list');
+    const result = document.getElementById('notion-summary-result');
+    const button = document.getElementById('btn-notion-pages');
+
+    // AI 분석 결과가 현재 보이는 경우
+    // → 분석창을 닫고 기존 페이지 목록 보여주기
+    if (!result.classList.contains('hidden')) {
+        result.classList.add('hidden');
+        list.classList.remove('hidden');
+
+        button.textContent = '목록 닫기';
+        return;
+    }
+
+    // 페이지 목록이 현재 보이는 경우
+    // → 목록 닫기
+    if (
+        list.innerHTML.trim() !== '' &&
+        !list.classList.contains('hidden')
+    ) {
+        list.classList.add('hidden');
+
+        button.textContent = '목록 보기';
+        return;
+    }
+
+    // 페이지를 이미 불러온 적이 있는 경우
+    // → API 재호출 없이 기존 목록 보여주기
+    if (list.innerHTML.trim() !== '') {
+        list.classList.remove('hidden');
+
+        button.textContent = '목록 닫기';
+        return;
+    }
+
+    // 최초 실행
+    list.classList.remove('hidden');
+
+    loadNotionPages();
+
+    button.textContent = '목록 닫기';
+}
+
+// --- [15. GitHub Repository 목록 토글] ---
+function toggleGitHubRepos() {
+    const list = document.getElementById('github-repos-list');
+    const result = document.getElementById('github-summary-result');
+    const button = document.getElementById('btn-github-repos');
+
+    // AI 분석 결과가 보이는 경우
+    // → 분석창 닫고 Repository 목록 보여주기
+    if (!result.classList.contains('hidden')) {
+        result.classList.add('hidden');
+        list.classList.remove('hidden');
+
+        button.textContent = '목록 닫기';
+        return;
+    }
+
+    // Repository 목록이 보이는 경우
+    // → 목록 닫기
+    if (
+        list.innerHTML.trim() !== '' &&
+        !list.classList.contains('hidden')
+    ) {
+        list.classList.add('hidden');
+
+        button.textContent = '목록 보기';
+        return;
+    }
+
+    // 이미 Repository를 불러온 경우
+    // → API 재호출 없이 기존 목록 보여주기
+    if (list.innerHTML.trim() !== '') {
+        list.classList.remove('hidden');
+
+        button.textContent = '목록 닫기';
+        return;
+    }
+
+    // 최초 실행
+    list.classList.remove('hidden');
+
+    loadGitHubRepos();
+
+    button.textContent = '목록 닫기';
+}
+
+// --- [16. AI 도구 탭 전환] ---
+function switchAITool(tool) {
+
+    const tools = ['figma', 'github', 'notion'];
+
+    tools.forEach(name => {
+
+        const panel = document.getElementById(`ai-tool-${name}`);
+        const tab = document.getElementById(`tab-${name}`);
+
+        if (name === tool) {
+
+            // 선택한 영역 표시
+            panel.classList.remove('hidden');
+
+            // 선택된 탭
+            tab.classList.remove(
+                'bg-slate-100',
+                'text-slate-500',
+                'hover:bg-slate-200'
+            );
+
+            tab.classList.add(
+                'bg-slate-900',
+                'text-white'
+            );
+
+        } else {
+
+            // 선택되지 않은 영역 숨기기
+            panel.classList.add('hidden');
+
+            // 선택되지 않은 탭
+            tab.classList.remove(
+                'bg-slate-900',
+                'text-white'
+            );
+
+            tab.classList.add(
+                'bg-slate-100',
+                'text-slate-500',
+                'hover:bg-slate-200'
+            );
+        }
+    });
+}
 
     // 초기 실행
     window.addEventListener('DOMContentLoaded', checkAppState);
