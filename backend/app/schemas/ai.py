@@ -5,7 +5,7 @@ from typing import Optional, List
 class MeetingNoteResponse(BaseModel):
     id: str
     title: str
-    raw_transcript: str
+    transcript: Optional[str] = None
     summary_markdown: str
     created_at: datetime
 

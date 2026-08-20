@@ -1610,39 +1610,40 @@ const names = {
   ai: 'AI 채팅',
   meeting: '회의 기록',
   community: '커뮤니티',
-  workspace: '2분할 작업창',
 };
 
 function showView(name) {
   $$('.view').forEach((view) => view.classList.toggle('active', view.id === `${name}View`));
   $$('.side-link').forEach((button) => button.classList.toggle('active', button.dataset.view === name));
-  $('#viewTitle').textContent = names[name];
-  if (name === 'workspace') renderWorkspacePreview();
+  $('#viewTitle').textContent = names[name] || '아이디어 보드';
+  if (name === 'dashboard' && window.renderAppHub) {
+    window.renderAppHub();
+  }
 }
 
-$('#signupForm').addEventListener('submit', handleAuthSubmit);
+$('#signupForm')?.addEventListener('submit', handleAuthSubmit);
 $$('[data-auth-mode]').forEach((button) => button.addEventListener('click', () => setAuthMode(button.dataset.authMode)));
 $$('[data-next]').forEach((button) => button.addEventListener('click', () => showScreen('app')));
-$('#installDiscordBot').addEventListener('click', continueWithDiscord);
-$('#discordConnect').addEventListener('click', continueWithDiscord);
-$('#enterDashboard').addEventListener('click', () => showScreen('app'));
-$('#openProjectSetup').addEventListener('click', () => showScreen('connect'));
-$('#showFigmaGuide').addEventListener('click', () => $('#figmaGuide').scrollIntoView({ behavior: 'smooth', block: 'center' }));
-$('#figmaPatForm').addEventListener('submit', handleFigmaPatSubmit);
-$('#disconnectFigmaPat').addEventListener('click', handleFigmaDisconnect);
+$('#installDiscordBot')?.addEventListener('click', continueWithDiscord);
+$('#discordConnect')?.addEventListener('click', continueWithDiscord);
+$('#enterDashboard')?.addEventListener('click', () => showScreen('app'));
+$('#openProjectSetup')?.addEventListener('click', () => showScreen('connect'));
+$('#showFigmaGuide')?.addEventListener('click', () => $('#figmaGuide')?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
+$('#figmaPatForm')?.addEventListener('submit', handleFigmaPatSubmit);
+$('#disconnectFigmaPat')?.addEventListener('click', handleFigmaDisconnect);
 $$('.link-btn,.channel-btn').forEach((button) => {
   if (['showFigmaGuide', 'githubConnect', 'notionConnect', 'discordConnect'].includes(button.id)) return;
   button.addEventListener('click', () => button.closest('.tool')?.classList.add('connected'));
 });
 $$('[data-view]').forEach((button) => button.addEventListener('click', () => showView(button.dataset.view)));
 $$('[data-jump]').forEach((button) => button.addEventListener('click', () => showView(button.dataset.jump)));
-$('#refreshData').addEventListener('click', refreshAppData);
-$('#chatForm').addEventListener('submit', handleChatSubmit);
+$('#refreshData')?.addEventListener('click', refreshAppData);
+$('#chatForm')?.addEventListener('submit', handleChatSubmit);
 $('#summaryForm')?.addEventListener('submit', handleSummarySubmit);
 $('#audioSummaryForm')?.addEventListener('submit', handleAudioSummary);
-$('#noteForm').addEventListener('submit', handleNoteSubmit);
-$('#layoutForm').addEventListener('submit', handleLayoutSubmit);
-$('#figmaFileForm').addEventListener('submit', handleFigmaFileSubmit);
+$('#noteForm')?.addEventListener('submit', handleNoteSubmit);
+$('#layoutForm')?.addEventListener('submit', handleLayoutSubmit);
+$('#figmaFileForm')?.addEventListener('submit', handleFigmaFileSubmit);
 $('#notionConnect').addEventListener('click', continueWithNotion);
 $('#notionAuthorizeButton').addEventListener('click', continueWithNotion);
 $('#notionDisconnectButton').addEventListener('click', () => disconnectIntegration('notion'));

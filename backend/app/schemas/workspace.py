@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from datetime import datetime
 
 class WorkspaceLayoutUpdate(BaseModel):
@@ -7,9 +7,9 @@ class WorkspaceLayoutUpdate(BaseModel):
 
 class WorkspaceLayoutResponse(BaseModel):
     id: str
-    user_id: str
+    user_id: Optional[str] = None
     layout_data: Dict[str, Any]
-    updated_at: datetime
+    updated_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
