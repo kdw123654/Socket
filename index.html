@@ -128,7 +128,7 @@
         <p class="members-title">팀원 및 다이렉트 메시지　＋</p>
         <div class="member"><i class="avatar cyan">서</i><span><b>AIin</b><small>prAInbot.com</small></span></div>
         <div class="member"><i class="avatar photo">F</i><span><b>FiatLux</b><small>DH</small></span></div>
-        <div class="userbar"><i class="avatar rainbow">P</i><span><b id="userNickname">Prain</b><small id="userEmail">온라인</small></span><b>◉　⚙</b></div>
+        <div class="userbar"><i class="avatar rainbow">P</i><span><b id="userNickname">Prain</b><small id="userEmail">온라인</small></span><button id="logoutButton" type="button" title="로그아웃">⏻</button></div>
       </aside>
 
       <section class="workspace">
@@ -159,24 +159,14 @@
               <button id="openProjectSetup" type="button">＋ 연동 설정</button>
             </aside>
 
-            <section class="activity">
+            <section class="activity" id="activityFeedSection">
               <div class="section-head">
-                <div><small>Backend Contract</small><h2>API 연동 현황</h2></div>
-                <span id="lastSync">대기 중</span>
+                <div><small>Activity</small><h2>통합 활동 피드</h2></div>
+                <button type="button" id="openActivityModal" style="font-size:11px;padding:5px 12px;background:#2563eb;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;">전체 피드 보기</button>
               </div>
-              <div class="api-grid hidden" id="apiGrid">
-                <article><b>Auth</b><span>/auth/signup, /auth/login, /auth/me</span><em data-api-status="auth">준비</em></article>
-                <article><b>AI</b><span>/ai/chat, /ai/summarize-text, /ai/summarize_text, /ai/summarize</span><em data-api-status="ai">준비</em></article>
-                <article><b>Meetings</b><span>/ai/meetings</span><em data-api-status="meetings">준비</em></article>
-                <article><b>Notes</b><span>/notes</span><em data-api-status="notes">준비</em></article>
-                <article><b>Integrations</b><span>/integrations/discord/status, /authorize</span><em data-api-status="integrations">준비</em></article>
-                <article><b>Figma 연동</b><span>/integrations/figma/save-pat, /pat-status, /pat</span><em data-api-status="figmaIntegration">준비</em></article>
-                <article><b>Figma 분석</b><span>/integrations/figma/frames, /file-comments, /summarize, /analyze</span><em data-api-status="figmaFile">준비</em></article>
-                <article><b>Notion 연동</b><span>/api/v1/integrations/notion/authorize, /status, /pages</span><em data-api-status="notion">준비</em></article>
-                <article><b>GitHub 연동</b><span>/api/v1/integrations/github/authorize, /status, /repos</span><em data-api-status="github">준비</em></article>
-                <article><b>Workspace</b><span>/workspace/layout</span><em data-api-status="workspace">준비</em></article>
+              <div id="activityFeedPreview" style="padding:12px 0;">
+                <p class="api-empty-state" style="font-size:12px;color:#94a3b8;">Figma 파일을 조회하면 최신 활동이 표시됩니다.</p>
               </div>
-              <p class="api-empty-state" id="apiEmptyState">아직 실제로 연결된 API가 없습니다. 백엔드가 연결되면 이곳에 연동 현황이 표시됩니다.</p>
             </section>
 
             <aside class="ai-summary empty-summary" id="dashboardInsight">
@@ -190,22 +180,25 @@
           <div class="dashboard-tools-grid">
             <section class="figma-api-panel">
               <div class="section-head">
-                <div><small>Figma File</small><h2>Figma 파일 조회 & AI 분석</h2></div>
-                <span id="figmaFileStatus">파일 키 입력 대기</span>
+                <div><small>Figma File</small><h2>Figma 디자인 → AI 구현 가이드</h2></div>
+                <span id="figmaFileStatus">파일 URL 입력 대기</span>
               </div>
               <form class="figma-api-form" id="figmaFileForm">
-                <input id="figmaFileKey" placeholder="Figma 파일 키 또는 URL">
-                <input id="figmaNodeId" placeholder="프레임 node_id 입력">
-                <input id="figmaFrameName" placeholder="프레임 이름 입력">
+                <input id="figmaFileKey" placeholder="Figma 파일 URL 붙여넣기">
+                <input id="figmaNodeId" class="hidden" placeholder="node_id">
+                <input id="figmaFrameName" class="hidden" placeholder="프레임 이름">
                 <div class="figma-api-actions">
-                  <button data-figma-action="frames" type="submit">프레임 조회</button>
-                  <button data-figma-action="comments" type="submit">댓글 조회</button>
-                  <button data-figma-action="summarize" type="submit">AI 요약</button>
-                  <button data-figma-action="analyze" type="submit">프레임 분석</button>
+                  <button data-figma-action="embed" type="submit">파일 열기</button>
                 </div>
               </form>
+              <div class="figma-embed-container" id="figmaEmbedContainer" style="display:none;margin-top:12px;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0;">
+                <iframe id="figmaEmbedIframe" style="width:100%;height:420px;border:none;" allowfullscreen></iframe>
+                <div style="padding:10px;background:#f8fafc;border-top:1px solid #e2e8f0;display:flex;justify-content:flex-end;">
+                  <button type="button" id="figmaAiSummarizeBtn" style="font-size:12px;padding:6px 14px;background:#a259ff;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;">AI 요약</button>
+                </div>
+              </div>
               <div class="figma-result empty-state" id="figmaResult" aria-live="polite">
-                Figma 파일 키를 입력하면 프레임 목록, 최근 댓글, AI 요약과 구현 가이드가 이곳에 표시됩니다.
+                Figma 파일 URL을 입력하고 "파일 열기"를 누르면 디자인이 표시됩니다.
               </div>
             </section>
 
@@ -418,6 +411,25 @@
       </section>
     </section>
   </main>
+
+  <!-- 통합 활동 피드 모달 -->
+  <div class="activity-modal-overlay" id="activityModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;justify-content:center;align-items:center;">
+    <div class="activity-modal" style="background:#fff;border-radius:16px;width:90%;max-width:560px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.15);">
+      <div style="padding:16px 20px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;">
+        <h3 style="font-size:15px;font-weight:800;color:#1e293b;margin:0;">통합 활동 피드</h3>
+        <button type="button" id="closeActivityModal" style="background:none;border:none;font-size:18px;cursor:pointer;color:#94a3b8;">✕</button>
+      </div>
+      <div style="padding:12px 20px;border-bottom:1px solid #f1f5f9;display:flex;gap:6px;">
+        <button type="button" class="feed-tab active" data-feed-tab="figma" style="font-size:11px;padding:5px 12px;border-radius:20px;border:1px solid #a259ff;background:#a259ff;color:#fff;cursor:pointer;font-weight:600;">Figma</button>
+        <button type="button" class="feed-tab" data-feed-tab="discord" style="font-size:11px;padding:5px 12px;border-radius:20px;border:1px solid #ddd;background:#fff;color:#64748b;cursor:pointer;font-weight:600;">Discord</button>
+        <button type="button" class="feed-tab" data-feed-tab="github" style="font-size:11px;padding:5px 12px;border-radius:20px;border:1px solid #ddd;background:#fff;color:#64748b;cursor:pointer;font-weight:600;">GitHub</button>
+        <button type="button" class="feed-tab" data-feed-tab="notion" style="font-size:11px;padding:5px 12px;border-radius:20px;border:1px solid #ddd;background:#fff;color:#64748b;cursor:pointer;font-weight:600;">Notion</button>
+      </div>
+      <div id="activityFeedList" style="flex:1;overflow-y:auto;padding:12px 20px;">
+        <p style="text-align:center;color:#94a3b8;font-size:12px;padding:32px 0;">플랫폼을 선택하면 활동 피드가 표시됩니다.</p>
+      </div>
+    </div>
+  </div>
 
   <script src="./config.js"></script>
   <script src="./script.js"></script>
