@@ -22,3 +22,9 @@ class MeetingNoteListItem(BaseModel):
 class TextSummarizeRequest(BaseModel):
     title: Optional[str] = "텍스트 회의록"
     transcript: str
+
+class ChatRequest(BaseModel):
+    message: str
+
+class ChatResponse(BaseModel):
+    reply: str

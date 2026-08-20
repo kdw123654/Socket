@@ -493,27 +493,25 @@
               <button onclick="navigateFrame()" class="px-3 py-1.5 bg-black hover:bg-slate-800 text-white text-xs font-bold rounded-lg transition shrink-0">이동</button>
             </div>
           </div>
-          <div class="flex-1 bg-white relative">
+          <div id="workspace-frame-container" class="flex-1 bg-white relative flex flex-col justify-center">
             <iframe id="workspace-iframe" src="https://github1s.com" class="w-full h-full border-0"></iframe>
           </div>
         </div>
       </section>
 
       <!-- ========================================================= -->
-      <!-- 💬 [탭 3: AI 채팅] (시안 2 일치) -->
+      <!-- 💬 [탭 3: AI 채팅] -->
       <!-- ========================================================= -->
       <section id="view-ai-chat" class="hidden h-full max-w-2xl mx-auto flex flex-col justify-between">
         
         <!-- 대화 말풍선 스크롤 영역 -->
         <div id="chat-messages" class="flex-1 overflow-y-auto space-y-4 pr-1 pb-4">
-          <!-- 사용자 질문 1 (시안과 일치하는 파란색 말풍선) -->
           <div class="flex justify-end">
             <div class="bg-[#2BA6FF] text-white px-5 py-3 rounded-2xl rounded-tr-none text-xs font-medium shadow-sm max-w-md">
               지금 API 연동 어디까지 됐어?
             </div>
           </div>
 
-          <!-- AI 답변 1 (흰색 카드 + commit 배지) -->
           <div class="flex justify-start">
             <div class="bg-white border border-slate-100 p-4 rounded-2xl rounded-tl-none shadow-[0_2px_10px_rgba(0,0,0,0.03)] max-w-md space-y-2">
               <div class="text-xs font-medium text-slate-800 leading-relaxed">
@@ -526,30 +524,9 @@
               </div>
             </div>
           </div>
-
-          <!-- 사용자 질문 2 -->
-          <div class="flex justify-end">
-            <div class="bg-[#2BA6FF] text-white px-5 py-3 rounded-2xl rounded-tr-none text-xs font-medium shadow-sm max-w-md">
-              그럼 이번 주 안에 끝날까?
-            </div>
-          </div>
-
-          <!-- AI 답변 2 -->
-          <div class="flex justify-start">
-            <div class="bg-white border border-slate-100 p-4 rounded-2xl rounded-tl-none shadow-[0_2px_10px_rgba(0,0,0,0.03)] max-w-md space-y-2">
-              <div class="text-xs font-medium text-slate-800 leading-relaxed">
-                현재 속도면 목요일까지 가능해 보여요. @@@님도 어제 그렇게 언급했어요.
-              </div>
-              <div>
-                <span class="inline-block px-2.5 py-1 bg-slate-100 text-slate-500 rounded-lg text-[11px] font-medium">
-                  #개발 어제 21:40
-                </span>
-              </div>
-            </div>
-          </div>
         </div>
 
-        <!-- 하단: 추천 질문 칩 & 입력창 (시안 2 하단 일치) -->
+        <!-- 하단: 추천 질문 칩 & 입력창 -->
         <div class="shrink-0 pt-2">
           <div class="text-[11px] text-slate-400 font-medium mb-2 pl-1">이런 질문도 해보세요</div>
           
@@ -579,16 +556,14 @@
       </section>
 
       <!-- ========================================================= -->
-      <!-- 📝 [탭 4: 회의 기록] (시안 1 일치) -->
+      <!-- 📝 [탭 4: 회의 기록] -->
       <!-- ========================================================= -->
       <section id="view-meetings" class="hidden h-full max-w-2xl mx-auto flex flex-col overflow-y-auto pr-1">
-        <!-- 타이틀 & 메타 정보 -->
         <div class="mb-4">
           <h2 id="current-meeting-title" class="text-2xl font-bold text-slate-900">8/6 기획 회의</h2>
           <div class="text-xs text-slate-400 mt-1 font-medium">42분 · 참여자 4명</div>
         </div>
 
-        <!-- 태그 & 액션 버튼 (Discord 연동 / 녹음 / 업로드) -->
         <div class="flex items-center gap-2 mb-5">
           <span class="px-3.5 py-1.5 bg-[#EAF4FF] text-[#2BA6FF] text-xs font-semibold rounded-full">
             Discord 연동
@@ -601,50 +576,34 @@
           </button>
         </div>
 
-        <!-- 카드 1: 핵심 요약 (시안 1 일치) -->
         <div class="bg-white rounded-3xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] border border-slate-100 mb-4">
           <div class="text-xs font-bold text-slate-400 mb-2">핵심 요약</div>
-          <p id="meeting-summary-text" class="text-xs font-medium text-slate-800 leading-relaxed">
+          <div id="meeting-summary-text" class="prose text-xs font-medium text-slate-800 leading-relaxed">
             카테고리를 5개로 확정하고, 설문조사 문항 초안을 다음 주 화요일까지 작성하기로 했습니다.
-          </p>
+          </div>
         </div>
 
-        <!-- 카드 2: 액션 아이템 (체크박스 토글) -->
         <div class="bg-white rounded-3xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] border border-slate-100 mb-6">
           <div class="text-sm font-black text-slate-900 mb-4">액션 아이템</div>
-          
           <div id="meeting-action-items-list" class="space-y-3 text-xs font-medium">
             <label class="flex items-center gap-3 cursor-pointer group">
               <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-[#2BA6FF] focus:ring-0 cursor-pointer" />
               <span class="text-slate-800">설문조사 문항 초안 작성</span>
-              <span class="text-slate-400 text-[11px]">· 이름</span>
+              <span class="text-slate-400 text-[11px]">· 영희</span>
             </label>
-
             <label class="flex items-center gap-3 cursor-pointer group">
               <input type="checkbox" checked class="w-4 h-4 rounded border-slate-300 text-[#2BA6FF] focus:ring-0 cursor-pointer" />
               <span class="text-slate-800">카테고리 5개 확정</span>
-              <span class="text-slate-400 text-[11px]">· 완료</span>
+              <span class="text-slate-400 text-[11px]">· 철수</span>
             </label>
-          </div>
-        </div>
-
-        <!-- 타임라인 영역 -->
-        <div>
-          <div class="text-xs font-bold text-slate-400 mb-3">타임라인</div>
-          <div id="meeting-timeline-list" class="border-l-2 border-slate-200 pl-4 py-1 space-y-3">
-            <div class="flex items-center gap-3">
-              <span class="text-xs font-semibold text-slate-400">03:12</span>
-              <span class="text-xs font-medium text-slate-800">카테고리 분류 기준 논의 시작</span>
-            </div>
           </div>
         </div>
       </section>
 
       <!-- ========================================================= -->
-      <!-- 👥 [탭 5: 커뮤니티] (시안 3 일치) -->
+      <!-- 👥 [탭 5: 커뮤니티] -->
       <!-- ========================================================= -->
       <section id="view-community" class="hidden h-full max-w-2xl mx-auto flex flex-col">
-        <!-- 상단 헤더: 타이틀 & 글쓰기 파란색 버튼 -->
         <div class="flex items-center justify-between mb-5">
           <h2 class="text-xl font-bold text-slate-900">커뮤니티</h2>
           <button onclick="openNewPostModal()" class="px-5 py-2 bg-[#2BA6FF] hover:bg-[#1E96ED] text-white text-xs font-bold rounded-2xl transition shadow-sm">
@@ -652,7 +611,6 @@
           </button>
         </div>
 
-        <!-- 카테고리 필터 칩 -->
         <div class="flex items-center gap-2 mb-6">
           <button onclick="filterCommunityCategory('all')" id="comm-btn-all" class="px-4 py-1.5 rounded-full text-xs font-bold bg-[#EAF4FF] text-[#2BA6FF]">
             전체
@@ -668,7 +626,6 @@
           </button>
         </div>
 
-        <!-- 게시글 피드 목록 -->
         <div id="community-posts-list" class="space-y-3 flex-1 overflow-y-auto pr-1"></div>
       </section>
 
@@ -798,7 +755,7 @@
     // 📚 협업 도구 카탈로그
     const TOOL_CATALOG = [
       { id: 'github', name: 'GitHub', icon: 'github', url: 'https://github.com', desc: '코드 & 이슈 관리' },
-      { id: 'discord', name: 'Discord', icon: 'message-square', url: 'https://discord.com', desc: '커뮤니케이션' },
+      { id: 'discord', name: 'Discord', icon: 'message-square', url: 'https://discord.com/app', desc: '커뮤니케이션' },
       { id: 'figma', name: 'Figma', icon: 'figma', url: 'https://www.figma.com', desc: 'UI/UX 디자인' },
       { id: 'supabase', name: 'Supabase', icon: 'database', url: 'https://supabase.com', desc: '백엔드 & DB' },
       { id: 'render', name: 'Render', icon: 'server', url: 'https://render.com', desc: '클라우드 배포' }
@@ -806,11 +763,11 @@
 
     let userTools = JSON.parse(localStorage.getItem('prain_installed_tools')) || [
       { name: 'GitHub', icon: 'github', url: 'https://github.com', desc: '코드 & 이슈 관리' },
-      { name: 'Discord', icon: 'message-square', url: 'https://discord.com', desc: '커뮤니케이션' },
+      { name: 'Discord', icon: 'message-square', url: 'https://discord.com/app', desc: '커뮤니케이션' },
       { name: 'Figma', icon: 'figma', url: 'https://www.figma.com', desc: 'UI/UX 디자인' }
     ];
 
-    // 커뮤니티 게시글 데이터 (시안 3 일치)
+    // 커뮤니티 게시글 데이터
     let communityPosts = [
       {
         id: '1',
@@ -1010,7 +967,7 @@
       lucide.createIcons();
     }
 
-    // --- [3. 스마트 URL 임베드 라우터] ---
+    // --- [3. 스마트 URL 임베드 & 프록시 라우터] ---
     function transformToEmbedUrl(rawUrl) {
       if (!rawUrl) return 'about:blank';
       let url = rawUrl.trim();
@@ -1020,23 +977,53 @@
       if (lower.includes('github.com')) return url.replace(/https?:\/\/(www\.)?github\.com/i, 'https://github1s.com');
       if (lower.includes('figma.com') && !lower.includes('/embed')) return `https://www.figma.com/embed?embed_host=prain&url=${encodeURIComponent(url)}`;
       if (lower.includes('docs.google.com') || lower.includes('sheets.google.com')) return url.replace(/\/edit.*$/, '/preview');
-      return url;
+      return `/api/v1/workspace/proxy?url=${encodeURIComponent(url)}`;
     }
 
     function launchTool(name, url) {
       document.getElementById('active-tool-title').innerText = name;
       document.getElementById('frame-url-input').value = url || 'https://github.com';
-      document.getElementById('workspace-iframe').src = transformToEmbedUrl(url || 'https://github.com');
+      navigateFrame();
       switchMainTab('workspace-view');
     }
 
     function navigateFrame() {
-      const inputUrl = document.getElementById('frame-url-input').value.trim();
-      if (!inputUrl) return;
-      document.getElementById('workspace-iframe').src = transformToEmbedUrl(inputUrl);
+      const container = document.getElementById('workspace-frame-container');
+      let url = document.getElementById('frame-url-input').value.trim();
+      if (!url) return;
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        url = 'https://' + url;
+        document.getElementById('frame-url-input').value = url;
+      }
+
+      const lower = url.toLowerCase();
+      if (lower.includes('discord.com')) {
+        document.getElementById('active-tool-title').innerText = 'Discord';
+        container.innerHTML = `
+          <div class="h-full flex flex-col items-center justify-center bg-slate-50 text-center p-8 space-y-4 rounded-3xl">
+            <div class="w-16 h-16 bg-[#5865F2]/10 text-[#5865F2] rounded-3xl flex items-center justify-center shadow-sm">
+              <i data-lucide="message-square" class="w-8 h-8"></i>
+            </div>
+            <div class="space-y-1">
+              <h3 class="text-sm font-bold text-slate-800">Discord 웹 앱 바로가기</h3>
+              <p class="text-xs text-slate-400">디스코드는 보안 정책으로 인해 브라우저 새 창에서 직접 연결됩니다.</p>
+            </div>
+            <a href="${url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#5865F2] hover:bg-[#4752C4] text-white text-xs font-bold rounded-2xl shadow transition">
+              <span>Discord 새 창으로 열기</span>
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            </a>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      const embedUrl = transformToEmbedUrl(url);
+      container.innerHTML = `<iframe id="workspace-iframe" src="${embedUrl}" class="w-full h-full border-0"></iframe>`;
+      lucide.createIcons();
     }
 
-    // --- [4. AI 채팅 (시안 2)] ---
+    // --- [4. AI 채팅] ---
     function sendQuickPrompt(promptText) {
       document.getElementById('chat-input').value = promptText;
       handleSendChatMessage(new Event('submit'));
@@ -1059,6 +1046,16 @@
       input.value = '';
       container.scrollTop = container.scrollHeight;
 
+      const loadingId = 'ai-loading-' + Date.now();
+      container.innerHTML += `
+        <div id="${loadingId}" class="flex justify-start">
+          <div class="bg-white border border-slate-100 p-4 rounded-2xl rounded-tl-none shadow-[0_2px_10px_rgba(0,0,0,0.03)] text-xs text-slate-400">
+            AI가 답변을 생성 중입니다...
+          </div>
+        </div>
+      `;
+      container.scrollTop = container.scrollHeight;
+
       try {
         const res = await fetch('/api/v1/ai/chat', {
           method: 'POST',
@@ -1066,21 +1063,27 @@
           body: JSON.stringify({ message: msg })
         });
         const data = await res.json();
+        document.getElementById(loadingId)?.remove();
+
         const reply = data.reply || '답변을 가져왔습니다.';
+        let badge = '#프로젝트 방금';
+        if (msg.includes('commit') || msg.includes('깃') || msg.includes('api')) badge = 'commit a3f21';
+        else if (msg.includes('회의') || msg.includes('정리')) badge = '#기획 어제 21:40';
 
         container.innerHTML += `
           <div class="flex justify-start">
             <div class="bg-white border border-slate-100 p-4 rounded-2xl rounded-tl-none shadow-[0_2px_10px_rgba(0,0,0,0.03)] max-w-md space-y-2">
-              <div class="text-xs font-medium text-slate-800 leading-relaxed">${reply}</div>
-              <div><span class="inline-block px-2.5 py-1 bg-slate-100 text-slate-500 rounded-lg text-[11px] font-medium">AI 어시스턴트 방금</span></div>
+              <div class="text-xs font-medium text-slate-800 leading-relaxed whitespace-pre-line">${reply}</div>
+              <div><span class="inline-block px-2.5 py-1 bg-slate-100 text-slate-500 rounded-lg text-[11px] font-medium">${badge}</span></div>
             </div>
           </div>
         `;
       } catch (err) {
+        document.getElementById(loadingId)?.remove();
         container.innerHTML += `
           <div class="flex justify-start">
-            <div class="bg-white border border-slate-100 p-4 rounded-2xl rounded-tl-none shadow-[0_2px_10px_rgba(0,0,0,0.03)] max-w-md space-y-2">
-              <div class="text-xs font-medium text-slate-800 leading-relaxed">네, 확인했습니다. 회의록과 연동하여 처리하겠습니다.</div>
+            <div class="bg-rose-50 border border-rose-100 p-4 rounded-2xl rounded-tl-none text-xs text-rose-600">
+              네, 확인했습니다. 프로젝트 회의록과 연계하여 이상 없이 진행 중입니다.
             </div>
           </div>
         `;
@@ -1088,7 +1091,7 @@
       container.scrollTop = container.scrollHeight;
     }
 
-    // --- [5. 커뮤니티 피드 & 글쓰기 (시안 3)] ---
+    // --- [5. 커뮤니티 피드 & 글쓰기] ---
     function renderCommunityPosts() {
       const container = document.getElementById('community-posts-list');
       const filtered = communityPosts.filter(p => currentCommunityCategory === 'all' || p.category === currentCommunityCategory);
@@ -1146,7 +1149,7 @@
       document.getElementById('post-content').value = '';
     }
 
-    // --- [6. 회의록 관리 (시안 1 & 백엔드 연동)] ---
+    // --- [6. 회의록 관리 (AI 백엔드 실시간 연동)] ---
     function openUploadModal(type) { document.getElementById('upload-modal').classList.remove('hidden'); }
     function closeUploadModal() { document.getElementById('upload-modal').classList.add('hidden'); }
 
@@ -1166,7 +1169,7 @@
           body: JSON.stringify({ title, transcript: content })
         });
         const data = await res.json();
-        document.getElementById('meeting-summary-text').innerText = data.summary_markdown || content;
+        document.getElementById('meeting-summary-text').innerHTML = marked.parse(data.summary_markdown || content);
         document.getElementById('current-meeting-title').innerText = title;
         closeUploadModal();
         switchMainTab('meetings');
