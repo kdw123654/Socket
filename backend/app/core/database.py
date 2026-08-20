@@ -32,10 +32,10 @@ async def get_db():
 
 # 서버 시작 시 모든 테이블을 자동 생성하는 초기화 함수
 async def init_db():
-    # 모든 모델들을 import하여 Base.metadata에 등록
     try:
         from app.models.user import User
         from app.models.meeting_note import MeetingNote
+        from app.models.note import Note
         from app.models.workspace import WorkspaceLayout
         from app.models.integration import Integration
     except ImportError:
