@@ -10,7 +10,7 @@
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-    * { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; }
+    * { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; box-sizing: border-box; }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #f1f5f9; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
@@ -23,7 +23,7 @@
 <body class="bg-[#F6F8FC] text-slate-800 h-screen w-screen overflow-hidden select-none flex flex-col">
 
   <!-- ========================================================= -->
-  <!-- 🚪 1. 초기 진입 화면: 로그인 / 회원가입 (탭 분리) -->
+  <!-- 🚪 1. 초기 진입 화면: 로그인 / 회원가입 -->
   <!-- ========================================================= -->
   <div id="auth-screen" class="h-full w-full flex flex-col items-center justify-center p-4 bg-[#F6F8FC]">
     <div class="w-full max-w-sm flex flex-col items-center">
@@ -94,19 +94,18 @@
 
 
   <!-- ========================================================= -->
-  <!-- 🖥️ 2. 메인 앱 화면 (상단 글로벌 탭 바 + 5대 탭 뷰) -->
+  <!-- 🖥️ 2. 메인 앱 화면 -->
   <!-- ========================================================= -->
   <div id="main-app" class="hidden h-full w-full flex flex-col overflow-hidden">
     
     <!-- 2-1. 상단 글로벌 네비게이션 헤더 -->
-    <header class="h-16 bg-[#F6F8FC] px-8 flex items-center justify-between shrink-0 z-20">
+    <header class="h-16 bg-[#F6F8FC] border-b border-slate-200/80 px-8 flex items-center justify-between shrink-0 z-20">
       <div class="flex items-center gap-3 cursor-pointer" onclick="switchMainTab('dashboard')">
         <div class="w-7 h-7 rounded-xl bg-black flex items-center justify-center font-black text-white text-xs shadow-sm">P</div>
         <span class="font-black text-base text-slate-900 tracking-tight">Prain</span>
       </div>
 
       <!-- 상단 메인 5대 탭 -->
-      
       <nav class="flex items-center gap-2 bg-transparent">
         <button onclick="switchMainTab('dashboard')" id="tab-nav-dashboard" class="px-5 py-2 rounded-2xl text-xs font-bold bg-[#EAF4FF] text-[#2BA6FF] transition">
           대시보드
@@ -147,15 +146,15 @@
       </div>
     </header>
 
-    <div class="border-b border-slate-200/80 mx-8"></div>
-
     <!-- 2-2. 메인 컨텐츠 영역 -->
     <main class="flex-1 overflow-hidden p-6 relative">
 
       <!-- ========================================================= -->
       <!-- 📌 [탭 1: 대시보드] -->
       <!-- ========================================================= -->
-      <section id="view-dashboard" class="h-full max-w-5xl mx-auto flex flex-col gap-5 overflow-y-auto pr-1">
+      <section id="view-dashboard" class="h-full max-w-5xl mx-auto flex flex-col gap-5 overflow-y-auto pr-1 pb-8">
+        
+        <!-- 상단 2열: 진행도 & 활동 피드 -->
         <div class="flex gap-5 items-stretch">
           <!-- 좌측: 진행도 & 연동 도구 -->
           <div class="w-1/3 bg-white p-6 rounded-3xl border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col justify-between">
@@ -169,16 +168,19 @@
               <div class="text-[11px] font-bold text-slate-400 mb-3 uppercase tracking-wider">주요 연동 상태</div>
               <div id="dashboard-tool-status-list" class="space-y-2 text-xs font-medium"></div>
             </div>
-            <button onclick="openToolModal()" class="w-full mt-4 py-2.5 border border-slate-200 bg-slate-50 hover:bg-slate-100 rounded-2xl text-xs font-bold transition flex items-center justify-center gap-1.5">
-              <i data-lucide="search" class="w-3.5 h-3.5"></i>
-              <span>+ 협업 도구 검색/추가</span>
-            </button>
-            <button onclick="connectFigmaOAuth()" id="btn-figma-connect" class="w-full mt-2 py-2.5 border border-[#A259FF]/30 bg-[#A259FF]/5 hover:bg-[#A259FF]/10 text-[#A259FF] rounded-2xl text-xs font-bold transition flex items-center justify-center gap-1.5">
-              <i data-lucide="figma" class="w-3.5 h-3.5"></i>
-              <span>Figma 연동하기</span>
-            </button>
+            <div>
+              <button onclick="openToolModal()" class="w-full mt-4 py-2.5 border border-slate-200 bg-slate-50 hover:bg-slate-100 rounded-2xl text-xs font-bold transition flex items-center justify-center gap-1.5">
+                <i data-lucide="search" class="w-3.5 h-3.5"></i>
+                <span>+ 협업 도구 검색/추가</span>
+              </button>
+              <button onclick="showFigmaPATModal()" id="btn-figma-connect" class="w-full mt-2 py-2.5 border border-[#A259FF]/30 bg-[#A259FF]/5 hover:bg-[#A259FF]/10 text-[#A259FF] rounded-2xl text-xs font-bold transition flex items-center justify-center gap-1.5">
+                <i data-lucide="figma" class="w-3.5 h-3.5"></i>
+                <span>Figma 연동하기</span>
+              </button>
+            </div>
           </div>
-          <!-- 중앙: 활동 피드 -->
+
+          <!-- 우측: 활동 피드 -->
           <div class="w-2/3 bg-white p-6 rounded-3xl border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col">
             <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
               <h3 class="text-xs font-bold text-slate-900">통합 활동 피드</h3>
@@ -203,11 +205,10 @@
                 </div>
               </div>
             </div>
-          </div>v>
           </div>
         </div>
 
-        <!-- 하단: 내 등록 프로그램 그리드 -->
+        <!-- 하단 1: 내 등록 프로그램 그리드 -->
         <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
           <div class="flex items-center justify-between mb-4">
             <div>
@@ -219,10 +220,10 @@
               <span>도구 추가</span>
             </button>
           </div>
-          <div id="installed-tools-grid" class="grid grid-cols-5 gap-3.5"></div>
+          <div id="installed-tools-grid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3.5"></div>
         </div>
 
-        <!-- Figma AI 프레임 분석 -->
+        <!-- 하단 2: Figma AI 프레임 분석 -->
         <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
           <div class="flex items-center justify-between mb-4">
             <div>
@@ -235,7 +236,7 @@
             </div>
           </div>
 
-          <!-- Figma URL 입력 (PAT 연동 후에만 동작) -->
+          <!-- Figma URL 입력 -->
           <div class="flex gap-3 mb-4">
             <input id="figma-analyze-file-key" type="text" placeholder="Figma 파일 URL 붙여넣기" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#A259FF]" />
             <button onclick="loadFigmaEmbed()" class="px-4 py-2 bg-[#A259FF] hover:bg-[#8B3FD9] text-white text-xs font-bold rounded-xl transition shrink-0">파일 열기</button>
@@ -247,12 +248,12 @@
             <div class="p-3 bg-slate-50 border-t border-slate-200 flex justify-end">
               <button onclick="summarizeFigmaFile()" class="px-4 py-2 bg-[#A259FF] hover:bg-[#8B3FD9] text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5">
                 <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-                AI 요약
+                <span>AI 요약</span>
               </button>
             </div>
           </div>
 
-          <!-- 프레임 목록 (썸네일) -->
+          <!-- 프레임 목록 -->
           <div id="figma-frames-list" class="grid grid-cols-3 gap-2 mb-4"></div>
 
           <!-- AI 분석 결과 -->
@@ -360,13 +361,12 @@
             </button>
           </form>
         </div>
-
       </section>
 
       <!-- ========================================================= -->
       <!-- 📝 [탭 4: 회의 기록] -->
       <!-- ========================================================= -->
-      <section id="view-meetings" class="hidden h-full max-w-2xl mx-auto flex flex-col overflow-y-auto pr-1">
+      <section id="view-meetings" class="hidden h-full max-w-2xl mx-auto flex flex-col overflow-y-auto pr-1 pb-8">
         <div class="mb-4">
           <h2 id="current-meeting-title" class="text-2xl font-bold text-slate-900">8/6 기획 회의</h2>
           <div class="text-xs text-slate-400 mt-1 font-medium">42분 · 참여자 4명</div>
@@ -411,7 +411,7 @@
       <!-- ========================================================= -->
       <!-- 👥 [탭 5: 커뮤니티] -->
       <!-- ========================================================= -->
-      <section id="view-community" class="hidden h-full max-w-2xl mx-auto flex flex-col">
+      <section id="view-community" class="hidden h-full max-w-2xl mx-auto flex flex-col pb-8">
         <div class="flex items-center justify-between mb-5">
           <h2 class="text-xl font-bold text-slate-900">커뮤니티</h2>
           <button onclick="openNewPostModal()" class="px-5 py-2 bg-[#2BA6FF] hover:bg-[#1E96ED] text-white text-xs font-bold rounded-2xl transition shadow-sm">
@@ -555,11 +555,9 @@
 
 
   <!-- ========================================================= -->
-  <!-- 6. 자바스크립트 엔진 -->
+  <!-- 7. 자바스크립트 엔진 -->
   <!-- ========================================================= -->
   <script>
-    lucide.createIcons();
-
     // 📚 협업 도구 카탈로그
     const TOOL_CATALOG = [
       { id: 'github', name: 'GitHub', icon: 'github', url: 'https://github.com', desc: '코드 & 이슈 관리' },
@@ -570,9 +568,9 @@
     ];
 
     let userTools = JSON.parse(localStorage.getItem('prain_installed_tools')) || [
-      { name: 'GitHub', icon: 'github', url: 'https://github.com', desc: '코드 & 이슈 관리' },
-      { name: 'Discord', icon: 'message-square', url: 'https://discord.com/app', desc: '커뮤니케이션' },
-      { name: 'Figma', icon: 'figma', url: 'https://www.figma.com', desc: 'UI/UX 디자인' }
+      { id: 'github', name: 'GitHub', icon: 'github', url: 'https://github.com', desc: '코드 & 이슈 관리' },
+      { id: 'discord', name: 'Discord', icon: 'message-square', url: 'https://discord.com/app', desc: '커뮤니케이션' },
+      { id: 'figma', name: 'Figma', icon: 'figma', url: 'https://www.figma.com', desc: 'UI/UX 디자인' }
     ];
 
     // 커뮤니티 게시글 데이터
@@ -612,11 +610,12 @@
         renderUserTools();
         renderCommunityPosts();
         loadMeetings();
+        switchMainTab('dashboard');
       } else {
         document.getElementById('auth-screen').classList.remove('hidden');
         document.getElementById('main-app').classList.add('hidden');
       }
-      lucide.createIcons();
+      setTimeout(() => lucide.createIcons(), 50);
     }
 
     async function handleLogin(e) {
@@ -664,7 +663,6 @@
       const errorDiv = document.getElementById('auth-error');
       errorDiv.classList.add('hidden');
 
-      // 유효성 검증
       if (nickname.length < 2) {
         errorDiv.innerText = '닉네임은 2자 이상 입력해주세요.';
         errorDiv.classList.remove('hidden');
@@ -696,7 +694,6 @@
           throw new Error(signupData.detail || '회원가입에 실패했습니다.');
         }
 
-        // 가입 성공 → 자동 로그인
         const loginRes = await fetch('/api/v1/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -761,6 +758,8 @@
       tabs.forEach(t => {
         const navBtn = document.getElementById(`tab-nav-${t}`);
         const viewSec = document.getElementById(`view-${t}`);
+        if (!navBtn || !viewSec) return;
+        
         if (t === tabName) {
           navBtn.className = "px-5 py-2 rounded-2xl text-xs font-bold bg-[#EAF4FF] text-[#2BA6FF] transition";
           viewSec.classList.remove('hidden');
@@ -770,7 +769,7 @@
         }
       });
       if (tabName === 'meetings' || tabName === 'workspace-view') loadMeetings();
-      lucide.createIcons();
+      setTimeout(() => lucide.createIcons(), 50);
     }
 
     // --- [3. 스마트 URL 임베드 & 프록시 라우터] ---
@@ -955,7 +954,7 @@
       document.getElementById('post-content').value = '';
     }
 
-    // --- [6. 회의록 관리 (AI 백엔드 실시간 연동)] ---
+    // --- [6. 회의록 관리 (AI 백엔드 연동)] ---
     function openUploadModal(type) { document.getElementById('upload-modal').classList.remove('hidden'); }
     function closeUploadModal() { document.getElementById('upload-modal').classList.add('hidden'); }
 
@@ -1053,7 +1052,7 @@
           </div>
         `).join('');
       }
-      lucide.createIcons();
+      setTimeout(() => lucide.createIcons(), 50);
     }
 
     function openToolModal() { document.getElementById('tool-modal').classList.remove('hidden'); renderSearchResults(); }
@@ -1078,7 +1077,7 @@
           </div>
         `;
       }).join('');
-      lucide.createIcons();
+      setTimeout(() => lucide.createIcons(), 50);
     }
 
     function addTool(id) {
@@ -1123,14 +1122,21 @@
       if (data.authorize_url) window.open(data.authorize_url, 'discord_auth', 'width=580,height=720');
     }
 
-    // --- [9. Figma PAT 연동 (한 번만 등록하면 자동 사용)] ---
+    // --- [9. Figma 연동] ---
     function showFigmaPATModal() { document.getElementById('figma-pat-modal').classList.remove('hidden'); }
     function closeFigmaPATModal() { document.getElementById('figma-pat-modal').classList.add('hidden'); }
+
+    function disconnectFigma() {
+      localStorage.removeItem('figma_pat');
+      document.getElementById('figma-badge').classList.add('hidden');
+      checkFigmaPAT();
+    }
 
     async function checkFigmaPAT() {
       const token = localStorage.getItem('prain_token');
       if (!token) return;
-      const badge = document.getElementById('figma-pat-badge');
+      const badge = document.getElementById('figma-badge');
+      const patBadge = document.getElementById('figma-pat-badge');
       const btn = document.getElementById('btn-figma-pat');
       try {
         const res = await fetch('/api/v1/integrations/figma/pat-status', {
@@ -1138,16 +1144,21 @@
         });
         const data = await res.json();
         if (data.connected) {
-          badge.classList.remove('hidden');
-          badge.innerText = `Figma: ${data.username || '연결됨'}`;
-          btn.innerText = '재연동';
+          if (badge) badge.classList.remove('hidden');
+          if (patBadge) {
+            patBadge.classList.remove('hidden');
+            patBadge.innerText = `Figma: ${data.username || '연결됨'}`;
+          }
+          if (btn) btn.innerText = '재연동';
         } else {
-          badge.classList.add('hidden');
-          btn.innerText = 'Figma 연동';
+          if (badge) badge.classList.add('hidden');
+          if (patBadge) patBadge.classList.add('hidden');
+          if (btn) btn.innerText = 'Figma 연동';
         }
       } catch (e) {
-        badge.classList.add('hidden');
-        btn.innerText = 'Figma 연동';
+        if (badge) badge.classList.add('hidden');
+        if (patBadge) patBadge.classList.add('hidden');
+        if (btn) btn.innerText = 'Figma 연동';
       }
     }
 
@@ -1166,13 +1177,39 @@
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.detail || '연동 실패');
-        alert(data.message);
+        alert(data.message || '연동되었습니다.');
         closeFigmaPATModal();
         checkFigmaPAT();
       } catch (err) {
         alert(err.message);
       } finally {
         btn.innerText = '연동하기'; btn.disabled = false;
+      }
+    }
+
+    async function loadFigmaComments() {
+      const fileKeyInput = document.getElementById('figma-file-key-input').value.trim();
+      if (!fileKeyInput) return alert('Figma URL 또는 파일 키를 입력해주세요.');
+      const fileKey = extractFigmaFileKey(fileKeyInput);
+      const token = localStorage.getItem('prain_token');
+      const feedList = document.getElementById('activity-feed-list');
+      try {
+        const res = await fetch(`/api/v1/integrations/figma/file/${fileKey}`, {
+          headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        });
+        const data = await res.json();
+        feedList.innerHTML = `
+          <div class="flex items-start gap-3 pb-2.5 border-b border-slate-50">
+            <div class="p-2 bg-[#A259FF]/10 text-[#A259FF] rounded-xl"><i data-lucide="figma" class="w-4 h-4"></i></div>
+            <div>
+              <div class="text-xs font-bold text-slate-800">${data.name || 'Figma 디자인 업데이트'}</div>
+              <div class="text-[11px] text-slate-400 mt-0.5">Figma · 방금 전</div>
+            </div>
+          </div>
+        ` + feedList.innerHTML;
+        setTimeout(() => lucide.createIcons(), 50);
+      } catch (e) {
+        alert('피드를 불러오지 못했습니다.');
       }
     }
 
@@ -1187,12 +1224,11 @@
       const rawInput = document.getElementById('figma-analyze-file-key').value.trim();
       if (!rawInput) return alert('Figma URL을 입력해주세요.');
 
-      // Figma 임베드 뷰어 표시
       const embedUrl = `https://www.figma.com/embed?embed_host=prain&url=${encodeURIComponent(rawInput)}`;
       document.getElementById('figma-embed-iframe').src = embedUrl;
       document.getElementById('figma-embed-container').classList.remove('hidden');
       document.getElementById('figma-analysis-result').classList.add('hidden');
-      lucide.createIcons();
+      setTimeout(() => lucide.createIcons(), 50);
     }
 
     async function summarizeFigmaFile() {
@@ -1221,73 +1257,6 @@
         }
         const data = await res.json();
         contentDiv.innerHTML = marked.parse(data.summary);
-      } catch (err) {
-        contentDiv.innerHTML = `<div class="text-rose-500">${err.message}</div>`;
-      }
-    }
-
-    async function loadFigmaFrames() {
-      const token = localStorage.getItem('prain_token');
-      const rawInput = document.getElementById('figma-analyze-file-key').value.trim();
-      if (!token) return alert('로그인이 필요합니다.');
-      if (!rawInput) return alert('Figma URL을 입력해주세요.');
-
-      const fileKey = extractFigmaFileKey(rawInput);
-      const framesList = document.getElementById('figma-frames-list');
-      framesList.innerHTML = '<div class="col-span-3 text-center py-4 text-slate-400 text-xs">프레임 불러오는 중...</div>';
-      document.getElementById('figma-analysis-result').classList.add('hidden');
-
-      try {
-        const res = await fetch('/api/v1/integrations/figma/frames', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-          body: JSON.stringify({ file_key: fileKey })
-        });
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({ detail: `서버 에러 (${res.status})` }));
-          throw new Error(errData.detail || '조회 실패');
-        }
-        const data = await res.json();
-
-        if (!data.frames || data.frames.length === 0) {
-          framesList.innerHTML = '<div class="col-span-3 text-center py-4 text-slate-400 text-xs">프레임이 없습니다.</div>';
-          return;
-        }
-
-        framesList.innerHTML = data.frames.map(f => `
-          <button onclick="analyzeFrame('${fileKey}', '${f.id}', '${f.name}')" class="bg-white hover:bg-[#A259FF]/5 border border-slate-200 hover:border-[#A259FF]/30 rounded-xl overflow-hidden text-left transition group">
-            ${f.thumbnail ? `<img src="${f.thumbnail}" class="w-full h-28 object-cover bg-slate-100" />` : `<div class="w-full h-28 bg-slate-100 flex items-center justify-center text-slate-300 text-xs">미리보기 없음</div>`}
-            <div class="p-2.5">
-              <div class="text-xs font-bold text-slate-800 truncate">${f.name}</div>
-              <div class="text-[10px] text-slate-400 mt-0.5">${f.page}</div>
-            </div>
-          </button>
-        `).join('');
-      } catch (err) {
-        framesList.innerHTML = `<div class="col-span-3 text-center py-4 text-rose-400 text-xs">${err.message}</div>`;
-      }
-    }
-
-    async function analyzeFrame(fileKey, nodeId, frameName) {
-      const token = localStorage.getItem('prain_token');
-      const resultDiv = document.getElementById('figma-analysis-result');
-      const contentDiv = document.getElementById('figma-analysis-content');
-
-      resultDiv.classList.remove('hidden');
-      contentDiv.innerHTML = '<div class="text-center py-8 text-slate-400">AI가 디자인을 분석 중입니다... (20~30초 소요)</div>';
-
-      try {
-        const res = await fetch('/api/v1/integrations/figma/analyze', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-          body: JSON.stringify({ file_key: fileKey, node_id: nodeId, frame_name: frameName })
-        });
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({ detail: `서버 에러 (${res.status})` }));
-          throw new Error(errData.detail || '분석 실패');
-        }
-        const data = await res.json();
-        contentDiv.innerHTML = marked.parse(data.analysis);
       } catch (err) {
         contentDiv.innerHTML = `<div class="text-rose-500">${err.message}</div>`;
       }
