@@ -1,0 +1,1258 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Prain</title>
+  <link rel="stylesheet" href="./styles.css">
+  <style>
+    /* 1. 대시보드 프로그램 에디터 & 하단 통합 작업 허브 */
+    .tool-search-box { display: flex; gap: 8px; margin-bottom: 12px; }
+    .tool-search-box input { flex: 1; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; }
+    .tool-search-box select { padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; background: #fff; }
+    .tool-search-box button { padding: 10px 18px; background: #2563eb; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
+    .tool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-top: 12px; }
+    .tool-card { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; cursor: pointer; transition: all 0.2s ease; }
+    .tool-card:hover { border-color: #2563eb; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(37,99,235,0.1); }
+    .tool-card.active { border-color: #2563eb; background: #eff6ff; }
+    .tool-card b { font-size: 13px; color: #1e293b; display: flex; align-items: center; gap: 8px; }
+    .tool-card .remove-btn { background: none; border: none; color: #94a3b8; font-size: 14px; cursor: pointer; padding: 2px 6px; }
+    .tool-card .remove-btn:hover { color: #ef4444; }
+    
+    .active-workspace-viewer { width: 100%; min-height: 380px; border: 1px solid #e2e8f0; border-radius: 14px; overflow: hidden; background: #ffffff; margin-top: 14px; display: flex; flex-direction: column; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
+    .viewer-header { padding: 12px 18px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+    .hub-content { padding: 28px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; flex: 1; }
+    .hub-icon-wrap { width: 56px; height: 56px; border-radius: 16px; background: #eff6ff; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+    .hub-icon-wrap svg { width: 32px; height: 32px; fill: #2563eb; }
+    .hub-actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; justify-content: center; }
+    .hub-btn { padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease; border: none; }
+    .hub-btn-primary { background: #2563eb; color: #fff; }
+    .hub-btn-primary:hover { background: #1d4ed8; }
+    .hub-btn-secondary { background: #f1f5f9; color: #334155; }
+    .hub-btn-secondary:hover { background: #e2e8f0; }
+    .figma-embed-box { width: 100%; margin-top: 16px; display: flex; flex-direction: column; gap: 8px; max-width: 540px; }
+    .figma-embed-box input { padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; width: 100%; }
+    .embedded-frame { width: 100%; height: 440px; border: none; border-top: 1px solid #e2e8f0; display: none; }
+
+    /* 2. [스크린샷 1] AI 채팅 UI 스타일 */
+    .ai-chat-view-container { display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 780px; margin: 0 auto; }
+    .ai-chat-stream { display: flex; flex-direction: column; gap: 14px; min-height: 380px; max-height: 520px; overflow-y: auto; padding: 10px 4px; }
+    .chat-bubble-row { display: flex; width: 100%; }
+    .chat-bubble-row.user { justify-content: flex-end; }
+    .chat-bubble-row.ai { justify-content: flex-start; }
+    .user-speech-bubble { background: #38bdf8; color: #ffffff; padding: 12px 18px; border-radius: 18px 18px 2px 18px; font-size: 14px; font-weight: 500; max-width: 75%; word-break: break-word; box-shadow: 0 2px 8px rgba(56,189,248,0.25); }
+    .ai-card-bubble { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 18px 18px 18px 2px; padding: 14px 18px; max-width: 80%; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+    .ai-card-text { font-size: 14px; color: #1e293b; line-height: 1.5; }
+    .ai-meta-tag { display: inline-flex; align-items: center; padding: 3px 8px; background: #f1f5f9; color: #64748b; font-size: 11px; font-weight: 600; border-radius: 6px; align-self: flex-start; }
+    
+    .ai-recommend-box { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+    .ai-recommend-title { font-size: 12px; color: #94a3b8; font-weight: 600; }
+    .ai-chips-list { display: flex; gap: 8px; flex-wrap: wrap; }
+    .ai-chip-btn { background: #ffffff; border: 1px solid #e2e8f0; color: #334155; padding: 8px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+    .ai-chip-btn:hover { border-color: #38bdf8; color: #0284c7; background: #f0f9ff; }
+    
+    .ai-bar-form { display: flex; gap: 8px; margin-top: 10px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 30px; padding: 4px 6px 4px 16px; align-items: center; box-shadow: 0 2px 12px rgba(0,0,0,0.03); }
+    .ai-bar-form input { flex: 1; border: none; outline: none; font-size: 13px; color: #1e293b; background: transparent; }
+    .ai-bar-submit { width: 36px; height: 36px; border-radius: 50%; background: #38bdf8; color: #ffffff; border: none; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+    .ai-bar-submit:hover { background: #0284c7; }
+
+    /* 3. [스크린샷 2] 회의 기록 UI 스타일 */
+    .meeting-view-container { width: 100%; max-width: 780px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+    .meeting-hero { margin-bottom: 6px; }
+    .meeting-hero h2 { font-size: 20px; font-weight: 800; color: #0f172a; margin-bottom: 4px; }
+    .meeting-sub-info { font-size: 13px; color: #94a3b8; margin-bottom: 12px; }
+    .meeting-pill-tags { display: flex; gap: 8px; }
+    .meeting-tag-pill { padding: 6px 14px; font-size: 12px; font-weight: 700; border-radius: 20px; border: 1px solid #e2e8f0; background: #ffffff; color: #64748b; cursor: pointer; }
+    .meeting-tag-pill.primary { background: #e0f2fe; color: #0284c7; border-color: #bae6fd; }
+    
+    .meeting-data-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 18px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+    .meeting-data-label { font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 8px; }
+    .meeting-summary-body { font-size: 14px; color: #1e293b; line-height: 1.6; font-weight: 500; }
+    
+    .todo-list-wrap { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
+    .todo-item-row { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #334155; }
+    .todo-item-row input[type="checkbox"] { width: 16px; height: 16px; accent-color: #0284c7; cursor: pointer; }
+    .todo-item-row span.done { text-decoration: line-through; color: #94a3b8; }
+    .todo-assignee { font-size: 11px; color: #94a3b8; margin-left: 4px; }
+    
+    .timeline-wrap { display: flex; flex-direction: column; gap: 8px; border-left: 2px solid #e2e8f0; padding-left: 14px; margin-left: 4px; }
+    .timeline-row { font-size: 13px; color: #334155; }
+    .timeline-row b { color: #0284c7; margin-right: 8px; font-weight: 700; }
+
+    /* 4. [스크린샷 3] 커뮤니티 UI 스타일 */
+    .community-view-container { width: 100%; max-width: 780px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+    .comm-top-bar { display: flex; justify-content: space-between; align-items: center; }
+    .comm-top-bar h2 { font-size: 20px; font-weight: 800; color: #0f172a; }
+    .comm-create-btn { padding: 8px 18px; background: #38bdf8; color: #ffffff; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+    .comm-create-btn:hover { background: #0284c7; }
+
+    .comm-filters-row { display: flex; gap: 8px; }
+    .comm-filter-pill { padding: 6px 14px; font-size: 12px; font-weight: 700; border-radius: 20px; border: 1px solid #e2e8f0; background: #ffffff; color: #64748b; cursor: pointer; }
+    .comm-filter-pill.active { background: #e0f2fe; color: #0284c7; border-color: #bae6fd; }
+
+    .comm-cards-stack { display: flex; flex-direction: column; gap: 10px; }
+    .comm-post-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px 20px; display: flex; flex-direction: column; gap: 6px; cursor: pointer; transition: all 0.2s; }
+    .comm-post-card:hover { border-color: #38bdf8; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(56,189,248,0.1); }
+    .comm-card-title { font-size: 15px; font-weight: 700; color: #0f172a; }
+    .comm-card-meta { font-size: 12px; color: #64748b; display: flex; gap: 6px; align-items: center; }
+    .comm-card-meta .cat-label { color: #0284c7; font-weight: 700; }
+
+    /* 글쓰기 모달 */
+    .comm-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: none; align-items: center; justify-content: center; z-index: 1000; }
+    .comm-modal-body { background: #fff; border-radius: 16px; width: 90%; max-width: 480px; padding: 22px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.15); }
+    .comm-modal-body input, .comm-modal-body select, .comm-modal-body textarea { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; }
+    .comm-modal-body textarea { height: 120px; resize: none; }
+    .comm-modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+    .comm-modal-actions button { padding: 8px 16px; border-radius: 6px; font-weight: 700; cursor: pointer; border: none; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <svg class="icon-sprite" aria-hidden="true" focusable="false">
+    <symbol id="icon-discord" viewBox="0 0 24 24"><path d="M20.3 4.4a19.7 19.7 0 0 0-4.9-1.5.1.1 0 0 0-.1 0c-.2.4-.4.9-.6 1.2a18.3 18.3 0 0 0-5.5 0c-.2-.4-.4-.9-.6-1.2a.1.1 0 0 0-.1 0 19.7 19.7 0 0 0-4.9 1.5C.5 9-.3 13.6.1 18.1c0 0 0 .1.1.1a19.9 19.9 0 0 0 6 3 .1.1 0 0 0 .1 0c.5-.6.9-1.3 1.2-2a.1.1 0 0 0 0-.1c-.7-.2-1.3-.5-1.9-.9a.1.1 0 0 1 0-.1l.4-.3h.1c3.9 1.8 8.2 1.8 12.1 0h.1l.4.3a.1.1 0 0 1 0 .1c-.6.4-1.2.7-1.9.9a.1.1 0 0 0 0 .1c.4.7.8 1.4 1.2 2a.1.1 0 0 0 .1 0 20 20 0 0 0 6-3 .1.1 0 0 0 .1-.1c.4-5.2-.9-9.7-3.6-13.7ZM8 15.3c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Zm8 0c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Z"/></symbol>
+    <symbol id="icon-github" viewBox="0 0 24 24"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.4 11.4 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3Z"/></symbol>
+    <symbol id="icon-notion" viewBox="0 0 24 24"><path d="M4.5 4.2c.7.6 1 .6 2.4.5l13.2-.8c.3 0 .1-.3 0-.3L17.9 2c-.4-.3-1-.7-2.1-.6L3 2.3c-.5 0-.6.3-.4.5l1.9 1.4Zm.8 3.1v13.9c0 .7.4 1 1.2 1l14.5-.9c.8 0 .9-.6.9-1.2V6.4c0-.6-.2-.9-.7-.9L6 6.4c-.5 0-.7.3-.7.9Zm14.3.7c.1.4 0 .9-.4.9l-.7.1v10.3c-.6.3-1.2.5-1.6.5-.8 0-.9-.2-1.5-.9l-4.6-7.2v7l1.4.3s0 .8-1.2.8l-3.2.2c-.1-.2 0-.7.3-.8l.9-.2V9.9l-1.2-.1c-.1-.4.1-1 .8-1.1l3.5-.2 4.7 7.2V9.3l-1.2-.1c-.1-.5.3-.9.8-.9l3.2-.3Z"/></symbol>
+    <symbol id="icon-figma" viewBox="0 0 24 24"><path d="M8.5 2H12v7H8.5a3.5 3.5 0 1 1 0-7ZM12 2h3.5a3.5 3.5 0 1 1 0 7H12V2ZM8.5 9H12v7H8.5a3.5 3.5 0 1 1 0-7Zm7 7a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm-7 0H12v3.5A3.5 3.5 0 1 1 8.5 16Z"/></symbol>
+  </svg>
+
+  <main>
+    <!-- [화면 1] 회원가입 / 로그인 화면 -->
+    <section class="screen auth-screen active" id="authScreen">
+      <span class="corner-label">회원가입</span>
+      <div class="auth-brand" aria-label="prain">
+        <svg class="prain-logo" viewBox="0 0 56 56" role="img" aria-hidden="true">
+          <path class="prain-logo-mark" d="M13.5 50V22.5C13.5 12.3 21.1 5 31 5c10.1 0 17.5 7.5 17.5 17.5S41.1 40 31 40c-7.1 0-12.9-3.6-15.7-9.1" />
+          <path class="prain-logo-check" d="M24.2 22.8l5.5 5.6 10.4-11.2" />
+        </svg>
+        <h1>prain</h1>
+      </div>
+      <div class="signup-card">
+        <p>백엔드 API와 연결된 통합 협업 플랫폼</p>
+        <div class="api-chip"><span id="authApiState">API 정상 연결</span><b id="authApiBase">http://127.0.0.1:8000</b></div>
+        <button class="auth-btn discord-auth" id="installDiscordBot" type="button"><svg class="brand-icon auth-icon"><use href="#icon-discord"></use></svg>Discord 로그인 바로가기</button>
+        <button class="auth-btn github-auth" data-next type="button"><svg class="brand-icon auth-icon"><use href="#icon-github"></use></svg>GitHub 로그인 바로가기</button>
+        <p class="install-message" id="installMessage" aria-live="polite"></p>
+        <div class="divider"><span>또는 이메일로 시작</span></div>
+
+        <div class="auth-mode" role="tablist" aria-label="인증 방식">
+          <button class="active" type="button" data-auth-mode="signup">회원가입</button>
+          <button type="button" data-auth-mode="login">로그인</button>
+        </div>
+        <form id="signupForm" novalidate>
+          <input id="authEmail" type="email" placeholder="이메일 입력하시오" autocomplete="email">
+          <input id="authPassword" type="password" placeholder="비밀번호" autocomplete="current-password">
+          <input id="authNickname" type="text" placeholder="이름 입력하시오" autocomplete="nickname">
+          <label><input id="rememberLogin" type="checkbox" checked> 계정 로그인 유지</label>
+          <button class="start-btn" id="authSubmit" type="submit">회원가입하고 시작하기</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- [화면 2] 협업 툴 연결 화면 -->
+    <section class="screen connect-screen" id="connectScreen">
+      <div class="connect-wrap">
+        <span class="check">✓</span>
+        <h1>협업 툴 로그인 바로가기</h1>
+        <p>작업에 사용할 플랫폼의 공식 로그인 페이지를 즉시 엽니다</p>
+        <div class="tool-list">
+          <article class="tool connected">
+            <div class="tool-icon"><svg class="brand-icon"><use href="#icon-discord"></use></svg></div>
+            <div><b>Discord</b><small>공식 로그인</small></div>
+            <a href="https://discord.com/login" target="_blank" rel="noopener noreferrer" class="channel-btn" style="text-decoration:none;display:inline-block;text-align:center;line-height:28px;">로그인 열기</a>
+          </article>
+          <article class="tool" id="githubTool">
+            <div class="tool-icon"><svg class="brand-icon"><use href="#icon-github"></use></svg></div>
+            <div><b>GitHub</b><small>공식 로그인</small></div>
+            <a href="https://github.com/login" target="_blank" rel="noopener noreferrer" class="link-btn" style="text-decoration:none;display:inline-block;text-align:center;line-height:28px;">로그인 열기</a>
+          </article>
+          <article class="tool" id="notionTool">
+            <div class="tool-icon"><svg class="brand-icon"><use href="#icon-notion"></use></svg></div>
+            <div><b>Notion</b><small>공식 로그인</small></div>
+            <a href="https://www.notion.so/login" target="_blank" rel="noopener noreferrer" class="link-btn" style="text-decoration:none;display:inline-block;text-align:center;line-height:28px;">로그인 열기</a>
+          </article>
+          <article class="tool figma-tool" id="figmaTool">
+            <div class="tool-icon"><svg class="brand-icon"><use href="#icon-figma"></use></svg></div>
+            <div><b>Figma</b><small>공식 로그인</small></div>
+            <a href="https://www.figma.com/login" target="_blank" rel="noopener noreferrer" class="link-btn" style="text-decoration:none;display:inline-block;text-align:center;line-height:28px;">로그인 열기</a>
+          </article>
+        </div>
+
+        <button class="dashboard-btn" id="enterDashboard" type="button" style="margin-top:24px;">대시보드로 이동</button>
+      </div>
+    </section>
+
+    <!-- [화면 3] 메인 앱 화면 (사이드바 + 메인 워크스페이스) -->
+    <section class="screen app-screen" id="appScreen">
+      <!-- 좌측 서버 레일 -->
+      <aside class="server-rail">
+        <button class="server active" type="button">◉</button>
+        <button class="server" type="button">P</button>
+        <button class="server" type="button">G</button>
+        <button class="server" type="button">＋</button>
+      </aside>
+
+      <!-- 디스코드 스타일 사이드바 -->
+      <aside class="discord-sidebar">
+        <div class="find">새 그룹 찾기 또는 시작하기</div>
+        <nav>
+          <button class="side-link active" data-view="dashboard" type="button">⌁ 아이디어 보드</button>
+          <button class="side-link" data-view="ai" type="button">◉ AI 채팅</button>
+          <button class="side-link" data-view="meeting" type="button">◖ 회의 기록</button>
+          <button class="side-link" data-view="community" type="button">N 커뮤니티</button>
+        </nav>
+        <div class="divider-line"></div>
+        <p class="members-title">팀원 및 다이렉트 메시지 ＋</p>
+        <div class="member"><i class="avatar cyan">서</i><span><b>AIin</b><small>prAInbot.com</small></span></div>
+        <div class="member"><i class="avatar photo">F</i><span><b>FiatLux</b><small>DH</small></span></div>
+        <div class="userbar">
+          <i class="avatar rainbow">P</i>
+          <span><b id="userNickname">Prain</b><small id="userEmail">온라인</small></span>
+          <button id="logoutButton" type="button" title="로그아웃">⏻</button>
+        </div>
+      </aside>
+
+      <!-- 메인 작업창 영역 -->
+      <section class="workspace">
+        <header class="workspace-top">
+          <b id="viewTitle">아이디어 보드 & 프로그램 에디터</b>
+          <button id="refreshData" type="button">새로고침</button>
+          <span id="apiMode" style="color:#10b981;font-weight:700;">API 정상 작동 중</span>
+        </header>
+
+        <!-- 1. [대시보드 뷰 (스크린샷 1, 2, 3 완벽 구현)] -->
+        <div class="view active" id="dashboardView">
+          <div class="top-tabs">
+            <button class="active" data-jump="dashboard" type="button">대시보드</button>
+            <button data-jump="ai" type="button">AI 채팅</button>
+            <button data-jump="meeting" type="button">회의 기록</button>
+            <button data-jump="community" type="button">커뮤니티</button>
+          </div>
+
+          <div class="dashboard-main-container">
+            <!-- [WORKSPACE EDITOR 헤더 & 직접 프로그램 등록 버튼 (스크린샷 1)] -->
+            <div class="ws-editor-header">
+              <div class="ws-header-left">
+                <span class="ws-badge-label">WORKSPACE EDITOR</span>
+                <h2 class="ws-main-title">프로그램 검색 및 추가 에디터</h2>
+                <p class="ws-sub-desc">필요한 모든 프로그램을 검색해 내 워크스페이스에 추가하고, 클릭하여 바로 통합 활동 피드에서 작업하세요.</p>
+              </div>
+              <button type="button" class="btn-register-custom" id="openCustomToolModalBtn">
+                <span class="plus-icon">＋</span> 직접 프로그램 등록
+              </button>
+            </div>
+
+            <!-- [검색창 & 추천 퀵 칩 (스크린샷 1)] -->
+            <div class="ws-search-bar-row">
+              <div class="ws-search-input-wrap">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="wsProgramSearchInput" placeholder="프로그램 검색 또는 직접 입력 (예: Supabase, Linear, Canva...)" autocomplete="off">
+              </div>
+              <div class="ws-quick-chips">
+                <button type="button" class="quick-chip-btn" data-preset="Jira">＋ Jira</button>
+                <button type="button" class="quick-chip-btn" data-preset="Trello">＋ Trello</button>
+                <button type="button" class="quick-chip-btn" data-preset="Google Docs">＋ Google Docs</button>
+                <button type="button" class="quick-chip-btn" data-preset="VS Code Web">＋ VS Code Web</button>
+                <button type="button" class="quick-chip-btn" data-preset="ChatGPT">＋ ChatGPT</button>
+              </div>
+            </div>
+
+            <!-- [내 워크스페이스 프로그램 (클릭하여 작업) (스크린샷 1)] -->
+            <div class="ws-cards-section">
+              <div class="ws-cards-header">
+                <h3 class="ws-cards-title">내 워크스페이스 프로그램 (클릭하여 작업)</h3>
+                <span class="ws-current-working-label">현재 작업: <b id="currentWorkingName">Figma</b></span>
+              </div>
+              
+              <div class="ws-cards-grid" id="workspaceCardsGrid">
+                <!-- 동적으로 렌더링되거나 초기 로드됨 -->
+              </div>
+            </div>
+
+            <!-- [라이브 작업창 (Live Browser Hub) (스크린샷 1 & 2)] -->
+            <div class="ws-live-browser-card" id="wsLiveBrowserCard">
+              <!-- Live Top Bar -->
+              <div class="live-browser-topbar">
+                <div class="live-title-area">
+                  <div class="live-tool-icon" id="liveHeaderIcon">🎨</div>
+                  <div class="live-title-text-wrap">
+                    <div class="live-title-row">
+                      <h3 class="live-tool-heading" id="liveHeaderTitle">Figma 라이브 작업창</h3>
+                      <span class="live-badge-pill">Live</span>
+                    </div>
+                    <p class="live-tool-desc" id="liveHeaderDesc">UI/UX 디자인 및 프로토타입 협업</p>
+                  </div>
+                </div>
+                <div class="live-actions-area">
+                  <button type="button" class="btn-live-login" id="liveOfficialLoginBtn">
+                    🔑 <span id="liveLoginBtnText">Figma 로그인 페이지</span> ↗
+                  </button>
+                  <button type="button" class="btn-live-newtab" id="liveOpenNewTabBtn">
+                    새 탭으로 열기 ↗
+                  </button>
+                </div>
+              </div>
+
+              <!-- Live Quick-Switch Pills -->
+              <div class="live-quick-pills-row" id="liveQuickPillsRow">
+                <!-- 동적 퀵 스위처 버튼 -->
+              </div>
+
+              <!-- Address Bar -->
+              <div class="live-address-bar-row">
+                <span class="url-label">URL</span>
+                <input type="text" class="live-url-input" id="liveUrlInput" value="https://www.figma.com">
+                <button type="button" class="btn-url-go" id="liveUrlGoBtn">이동</button>
+                <button type="button" class="btn-url-refresh" id="liveUrlRefreshBtn" title="새로고침">↻</button>
+              </div>
+
+              <!-- Live Screen Viewer / Mockup Canvas -->
+              <div class="live-screen-viewport" id="liveScreenViewport">
+                <!-- Fallback / Interactive mockup screen for sites blocking iframe direct embed -->
+                <div class="live-mockup-overlay" id="liveMockupOverlay">
+                  <!-- GitHub, Figma, Notion, Discord, Slack UI mockup or Proxy iframe -->
+                </div>
+                <iframe id="liveBrowserFrame" class="live-browser-frame" src="about:blank" title="Live Workspace Viewer" allowfullscreen style="display:none;"></iframe>
+              </div>
+
+              <!-- Live Tip Bottom Bar -->
+              <div class="live-tip-footer">
+                💡 <b>Tip:</b> 로그인이 필요한 사이트는 우측 상단 <b>[로그인 페이지 ↗]</b> 버튼으로 바로 이동할 수 있습니다.
+              </div>
+            </div>
+
+            <!-- [하단 2열 그리드: 빠른 메모 & 스마트 요약/인사이트 (스크린샷 3)] -->
+            <div class="dashboard-bottom-grid">
+              <!-- Left: Notes (빠른 메모) -->
+              <div class="dashboard-panel-card">
+                <div class="panel-card-head">
+                  <span class="panel-sub-label">Notes</span>
+                  <h3 class="panel-main-title">빠른 메모</h3>
+                </div>
+                <form class="quick-note-form" id="quickNoteForm">
+                  <input type="text" id="quickNoteTitleInput" placeholder="메모 제목" autocomplete="off">
+                  <textarea id="quickNoteContentInput" placeholder="작업 중 필요한 메모나 아이디어를 기록하세요"></textarea>
+                  <button type="submit" class="btn-save-note">메모 저장</button>
+                </form>
+                <div class="quick-note-list" id="quickNoteListContainer">
+                  <div class="empty-dashed-box" id="emptyNoteBox">
+                    아직 작성된 메모가 없습니다.
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right: AI Assistant (스마트 요약 & 인사이트) -->
+              <div class="dashboard-panel-card">
+                <div class="panel-card-head">
+                  <span class="panel-sub-label">AI Assistant</span>
+                  <h3 class="panel-main-title">스마트 요약 & 인사이트</h3>
+                </div>
+                
+                <div class="insight-section">
+                  <div class="insight-sub-header">
+                    <span class="insight-sub-title" id="aiSummaryLabel">요약 없음</span>
+                  </div>
+                  <div class="insight-box" id="aiSummaryBox">
+                    <p class="insight-empty-text" id="aiSummaryText">아직 생성된 AI 요약이 없습니다.</p>
+                  </div>
+                </div>
+
+                <div class="insight-section" style="margin-top: 18px;">
+                  <div class="insight-sub-header">
+                    <span class="insight-sub-title">최근 회의록</span>
+                  </div>
+                  <div class="insight-box" id="recentMeetingBox">
+                    <p class="insight-empty-text" id="recentMeetingText">아직 저장된 회의록이 없습니다.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. [스크린샷 1 완벽 반영] AI 채팅 뷰 -->
+        <div class="view" id="aiView">
+          <div class="top-tabs">
+            <button data-jump="dashboard" type="button">대시보드</button>
+            <button class="active" data-jump="ai" type="button">AI 채팅</button>
+            <button data-jump="meeting" type="button">회의 기록</button>
+            <button data-jump="community" type="button">커뮤니티</button>
+          </div>
+
+          <div class="ai-chat-view-container">
+            <div class="ai-chat-stream" id="chatList">
+              <!-- 스크린샷 1 메시지 그대로 유지 -->
+              <div class="chat-bubble-row user">
+                <div class="user-speech-bubble">지금 API 연동 어디까지 됐어?</div>
+              </div>
+              <div class="chat-bubble-row ai">
+                <div class="ai-card-bubble">
+                  <div class="ai-card-text">80% 완료됐어요. API 인증 오류만 남았습니다.</div>
+                  <div class="ai-meta-tag">commit a3f21</div>
+                </div>
+              </div>
+              <div class="chat-bubble-row user">
+                <div class="user-speech-bubble">그럼 이번 주 안에 끝날까?</div>
+              </div>
+              <div class="chat-bubble-row ai">
+                <div class="ai-card-bubble">
+                  <div class="ai-card-text">현재 속도면 목요일까지 가능해 보여요. @@@님도 어제 그렇게 언급했어요.</div>
+                  <div class="ai-meta-tag">#개발 어제 21:40</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 스크린샷 1 추천 질문 칩 -->
+            <div class="ai-recommend-box">
+              <span class="ai-recommend-title">이런 질문도 해보세요</span>
+              <div class="ai-chips-list">
+                <button class="ai-chip-btn" data-question="이번 주 회의 내용 정리해줘" type="button">이번 주 회의 내용 정리해줘</button>
+                <button class="ai-chip-btn" data-question="막혀있는 이슈 뭐 있어?" type="button">막혀있는 이슈 뭐 있어?</button>
+              </div>
+            </div>
+
+            <!-- 스크린샷 1 입력 폼 -->
+            <form id="aiChatForm" class="ai-bar-form">
+              <input type="text" id="aiChatInput" placeholder="AI 또는 팀원에게 메시지 보내기" autocomplete="off">
+              <button type="submit" class="ai-bar-submit">➤</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- 3. [스크린샷 2 완벽 반영] 회의 기록 뷰 -->
+        <div class="view" id="meetingView">
+          <div class="top-tabs">
+            <button data-jump="dashboard" type="button">대시보드</button>
+            <button data-jump="ai" type="button">AI 채팅</button>
+            <button class="active" data-jump="meeting" type="button">회의 기록</button>
+            <button data-jump="community" type="button">커뮤니티</button>
+          </div>
+
+          <div class="meeting-view-container">
+            <div class="meeting-hero">
+              <h2>8/6 기획 회의</h2>
+              <div class="meeting-sub-info">42분 · 참여자 4명</div>
+              <div class="meeting-pill-tags">
+                <button class="meeting-tag-pill primary" type="button">Discord 연동</button>
+                <button class="meeting-tag-pill" type="button">녹음</button>
+                <button class="meeting-tag-pill" type="button">업로드</button>
+              </div>
+            </div>
+
+            <div class="meeting-data-card">
+              <div class="meeting-data-label">핵심 요약</div>
+              <p class="meeting-summary-body">카테고리를 5개로 확정하고, 설문조사 문항 초안을 다음 주 화요일까지 작성하기로 했습니다.</p>
+            </div>
+
+            <div class="meeting-data-card">
+              <div class="meeting-data-label">액션 아이템</div>
+              <div class="todo-list-wrap">
+                <label class="todo-item-row">
+                  <input type="checkbox">
+                  <span>설문조사 문항 초안 작성</span>
+                  <small class="todo-assignee">· 이름</small>
+                </label>
+                <label class="todo-item-row">
+                  <input type="checkbox" checked>
+                  <span class="done">카테고리 5개 확정</span>
+                  <small class="todo-assignee">· 완료</small>
+                </label>
+              </div>
+            </div>
+
+            <div class="meeting-data-card">
+              <div class="meeting-data-label">타임라인</div>
+              <div class="timeline-wrap">
+                <div class="timeline-row">
+                  <b>03:12</b> 카테고리 분류 기준 논의 시작
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. [스크린샷 3 완벽 반영] 커뮤니티 뷰 -->
+        <div class="view" id="communityView">
+          <div class="top-tabs">
+            <button data-jump="dashboard" type="button">대시보드</button>
+            <button data-jump="ai" type="button">AI 채팅</button>
+            <button data-jump="meeting" type="button">회의 기록</button>
+            <button class="active" data-jump="community" type="button">커뮤니티</button>
+          </div>
+
+          <div class="community-view-container">
+            <div class="comm-top-bar">
+              <h2>커뮤니티</h2>
+              <button class="comm-create-btn" id="openPostModalBtn" type="button">글쓰기</button>
+            </div>
+
+            <div class="comm-filters-row">
+              <button class="comm-filter-pill active" data-filter="전체" type="button">전체</button>
+              <button class="comm-filter-pill" data-filter="자유게시판" type="button">자유게시판</button>
+              <button class="comm-filter-pill" data-filter="팀원 모집" type="button">팀원 모집</button>
+              <button class="comm-filter-pill" data-filter="프로젝트 쇼케이스" type="button">프로젝트 쇼케이스</button>
+            </div>
+
+            <div class="comm-cards-stack" id="communityPostList">
+              <article class="comm-post-card" data-cat="팀원 모집">
+                <h3 class="comm-card-title">해커톤 프론트엔드 팀원 구합니다</h3>
+                <div class="comm-card-meta">
+                  <span class="cat-label">팀원 모집</span> · <span>2시간 전</span> · <span>댓글 5</span>
+                </div>
+              </article>
+              <article class="comm-post-card" data-cat="프로젝트 쇼케이스">
+                <h3 class="comm-card-title">관광 플랫폼 ㅡ 완료 프로젝트</h3>
+                <div class="comm-card-meta">
+                  <span class="cat-label">프로젝트 쇼케이스</span> · <span>어제</span> · <span>댓글 8</span>
+                </div>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <!-- 커뮤니티 글쓰기 모달 -->
+  <div class="comm-modal-overlay" id="postModal">
+    <div class="comm-modal-body">
+      <h3 style="font-size:16px; font-weight:800;">새 게시글 작성</h3>
+      <input type="text" id="postTitleInput" placeholder="제목을 입력하세요">
+      <select id="postCategorySelect">
+        <option value="자유게시판">자유게시판</option>
+        <option value="팀원 모집">팀원 모집</option>
+        <option value="프로젝트 쇼케이스">프로젝트 쇼케이스</option>
+      </select>
+      <textarea id="postContentInput" placeholder="내용을 입력하세요"></textarea>
+      <div class="comm-modal-actions">
+        <button type="button" id="closePostModalBtn" style="background:#f1f5f9; color:#475569;">취소</button>
+        <button type="button" id="submitPostBtn" style="background:#38bdf8; color:#fff;">등록</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 직접 프로그램 등록 모달 (스크린샷 1 연동) -->
+  <div class="comm-modal-overlay" id="customToolModal" style="display:none;">
+    <div class="comm-modal-body" style="max-width: 480px;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="font-size:16px; font-weight:800; color:#0f172a; margin:0;">직접 프로그램 등록</h3>
+        <button type="button" id="closeCustomToolModalBtn" style="background:none; border:none; font-size:18px; cursor:pointer; color:#94a3b8;">✕</button>
+      </div>
+      <p style="font-size:12px; color:#64748b; margin:0 0 4px 0;">내 워크스페이스에 추가할 프로그램 및 공식 URL을 입력하세요.</p>
+      
+      <div style="display:flex; flex-direction:column; gap:4px;">
+        <label style="font-size:12px; font-weight:700; color:#334155;">프로그램 이름</label>
+        <input type="text" id="modalToolName" placeholder="예: Supabase, Linear, Canva, Miro">
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:4px;">
+        <label style="font-size:12px; font-weight:700; color:#334155;">웹사이트 / 로그인 URL</label>
+        <input type="url" id="modalToolUrl" placeholder="https://...">
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:4px;">
+        <label style="font-size:12px; font-weight:700; color:#334155;">한 줄 설명</label>
+        <input type="text" id="modalToolDesc" placeholder="예: 오픈소스 백엔드 데이터베이스">
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:4px;">
+        <label style="font-size:12px; font-weight:700; color:#334155;">아이콘 이모지 또는 기호</label>
+        <input type="text" id="modalToolIcon" placeholder="예: ⚡, 🐙, 🎨, 📝, 💬, 💻, 🤖" value="⚡">
+      </div>
+
+      <div class="comm-modal-actions" style="margin-top:10px;">
+        <button type="button" id="cancelCustomToolModalBtn" style="background:#f1f5f9; color:#475569;">취소</button>
+        <button type="button" id="submitCustomToolModalBtn" style="background:#0f172a; color:#fff;">워크스페이스에 추가</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 통합 활동 피드 모달 -->
+  <div class="activity-modal-overlay" id="activityModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;justify-content:center;align-items:center;">
+    <div class="activity-modal" style="background:#fff;border-radius:16px;width:90%;max-width:560px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.15);">
+      <div style="padding:16px 20px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;">
+        <h3 style="font-size:15px;font-weight:800;color:#1e293b;margin:0;">전체 활동 피드</h3>
+        <button type="button" id="closeActivityModal" style="background:none;border:none;font-size:18px;cursor:pointer;color:#94a3b8;">✕</button>
+      </div>
+      <div id="activityFeedList" style="flex:1;overflow-y:auto;padding:12px 20px;">
+        <p style="text-align:center;color:#94a3b8;font-size:12px;padding:32px 0;">프로그램 작업 로그가 이곳에 기록됩니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 기본 공통 스크립트 로드 -->
+  <script src="./config.js"></script>
+  <script src="./script.js"></script>
+  <script type="module" src="./activity.js"></script>
+
+  <!-- 전체 인터랙션 통합 스크립트 -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // ==========================================
+      // 1. 탭 및 사이드바 뷰 전환 통합 로직 (기존 탭 100% 유지)
+      // ==========================================
+      function switchView(target) {
+        const viewMap = {
+          'dashboard': 'dashboardView',
+          'ai': 'aiView',
+          'meeting': 'meetingView',
+          'community': 'communityView'
+        };
+
+        const viewId = viewMap[target] || `${target}View`;
+        
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        const targetView = document.getElementById(viewId);
+        if (targetView) targetView.classList.add('active');
+
+        // 사이드바 active 갱신
+        document.querySelectorAll('.side-link').forEach(btn => {
+          if (btn.getAttribute('data-view') === target) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        });
+
+        // 상단 탭 active 갱신
+        document.querySelectorAll('.top-tabs button').forEach(btn => {
+          if (btn.getAttribute('data-jump') === target || (!btn.getAttribute('data-jump') && target === 'dashboard')) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        });
+      }
+
+      document.querySelectorAll('.side-link').forEach(btn => {
+        btn.addEventListener('click', () => switchView(btn.getAttribute('data-view')));
+      });
+
+      document.querySelectorAll('.top-tabs button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const jump = btn.getAttribute('data-jump') || 'dashboard';
+          switchView(jump);
+        });
+      });
+
+      // ==========================================
+      // 2. OpenAI 실시간 통신 (AI 채팅 탭)
+      // ==========================================
+      const aiForm = document.getElementById('aiChatForm');
+      const aiInput = document.getElementById('aiChatInput');
+      const chatStream = document.getElementById('chatList');
+
+      async function sendAiMessage(msg) {
+        if (!msg) return;
+
+        const userRow = document.createElement('div');
+        userRow.className = 'chat-bubble-row user';
+        userRow.innerHTML = `<div class="user-speech-bubble">${msg}</div>`;
+        chatStream.appendChild(userRow);
+        if (aiInput) aiInput.value = '';
+        chatStream.scrollTop = chatStream.scrollHeight;
+
+        const aiRow = document.createElement('div');
+        aiRow.className = 'chat-bubble-row ai';
+        aiRow.innerHTML = `
+          <div class="ai-card-bubble">
+            <div class="ai-card-text" style="color:#94a3b8;">생각하는 중...</div>
+          </div>
+        `;
+        chatStream.appendChild(aiRow);
+        chatStream.scrollTop = chatStream.scrollHeight;
+
+        try {
+          const res = await fetch('/ai/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: msg })
+          });
+          const data = await res.json();
+
+          aiRow.innerHTML = `
+            <div class="ai-card-bubble">
+              <div class="ai-card-text">${data.reply || '응답을 받지 못했습니다.'}</div>
+              <div class="ai-meta-tag">${data.badge || 'OpenAI Verified'}</div>
+            </div>
+          `;
+          
+          // 대시보드 스마트 요약에도 자동 반영
+          const aiSummaryText = document.getElementById('aiSummaryText');
+          const aiSummaryLabel = document.getElementById('aiSummaryLabel');
+          if (aiSummaryText) {
+            aiSummaryText.textContent = data.reply ? `${msg.substring(0, 18)}... 에 대한 답변: ${data.reply.substring(0, 60)}...` : '생성된 AI 요약이 없습니다.';
+            if (aiSummaryLabel) aiSummaryLabel.textContent = 'AI 인사이트 요약됨';
+          }
+        } catch (err) {
+          aiRow.innerHTML = `
+            <div class="ai-card-bubble">
+              <div class="ai-card-text" style="color:#ef4444;">백엔드 통신 실패 (데모 응답 모드)</div>
+            </div>
+          `;
+        }
+        chatStream.scrollTop = chatStream.scrollHeight;
+      }
+
+      if (aiForm) {
+        aiForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          sendAiMessage(aiInput.value.trim());
+        });
+      }
+
+      document.querySelectorAll('.ai-chip-btn').forEach(chip => {
+        chip.addEventListener('click', () => sendAiMessage(chip.getAttribute('data-question')));
+      });
+
+      // ==========================================
+      // 3. 커뮤니티 필터 & 글쓰기 (커뮤니티 탭)
+      // ==========================================
+      const commFilters = document.querySelectorAll('.comm-filter-pill');
+      const commPostList = document.getElementById('communityPostList');
+      const postModal = document.getElementById('postModal');
+      const openModalBtn = document.getElementById('openPostModalBtn');
+      const closeModalBtn = document.getElementById('closePostModalBtn');
+      const submitPostBtn = document.getElementById('submitPostBtn');
+
+      commFilters.forEach(pill => {
+        pill.addEventListener('click', () => {
+          commFilters.forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+
+          const category = pill.getAttribute('data-filter');
+          const cards = commPostList.querySelectorAll('.comm-post-card');
+          cards.forEach(c => {
+            if (category === '전체' || c.getAttribute('data-cat') === category) {
+              c.style.display = 'flex';
+            } else {
+              c.style.display = 'none';
+            }
+          });
+        });
+      });
+
+      if (openModalBtn) openModalBtn.addEventListener('click', () => postModal.style.display = 'flex');
+      if (closeModalBtn) closeModalBtn.addEventListener('click', () => postModal.style.display = 'none');
+
+      if (submitPostBtn) {
+        submitPostBtn.addEventListener('click', async () => {
+          const title = document.getElementById('postTitleInput').value.trim();
+          const category = document.getElementById('postCategorySelect').value;
+          const content = document.getElementById('postContentInput').value.trim();
+
+          if (!title) return alert('제목을 입력하세요.');
+
+          const card = document.createElement('article');
+          card.className = 'comm-post-card';
+          card.setAttribute('data-cat', category);
+          card.innerHTML = `
+            <h3 class="comm-card-title">${title}</h3>
+            <div class="comm-card-meta">
+              <span class="cat-label">${category}</span> · <span>방금 전</span> · <span>댓글 0</span>
+            </div>
+          `;
+          commPostList.insertBefore(card, commPostList.firstChild);
+          postModal.style.display = 'none';
+          document.getElementById('postTitleInput').value = '';
+          document.getElementById('postContentInput').value = '';
+        });
+      }
+
+      // =================================================================
+      // 4. 대시보드 워크스페이스 에디터 & 라이브 브라우저 허브 (스크린샷 1, 2, 3)
+      // =================================================================
+      const SVG_ICONS = {
+        Figma: `<svg viewBox="0 0 38 57" style="width:20px;height:20px;"><path fill="#1abcfe" d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z"/><path fill="#0acf83" d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z"/><path fill="#ff7262" d="M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z"/><path fill="#f24e1e" d="M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z"/><path fill="#a259ff" d="M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z"/></svg>`,
+        GitHub: `<svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:#24292f;"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>`,
+        Notion: `<svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:#000;"><path d="M4.5 4.2c.7.6 1 .6 2.4.5l13.2-.8c.3 0 .1-.3 0-.3L17.9 2c-.4-.3-1-.7-2.1-.6L3 2.3c-.5 0-.6.3-.4.5l1.9 1.4Zm.8 3.1v13.9c0 .7.4 1 1.2 1l14.5-.9c.8 0 .9-.6.9-1.2V6.4c0-.6-.2-.9-.7-.9L6 6.4c-.5 0-.7.3-.7.9Zm14.3.7c.1.4 0 .9-.4.9l-.7.1v10.3c-.6.3-1.2.5-1.6.5-.8 0-.9-.2-1.5-.9l-4.6-7.2v7l1.4.3s0 .8-1.2.8l-3.2.2c-.1-.2 0-.7.3-.8l.9-.2V9.9l-1.2-.1c-.1-.4.1-1 .8-1.1l3.5-.2 4.7 7.2V9.3l-1.2-.1c-.1-.5.3-.9.8-.9l3.2-.3Z"/></svg>`,
+        Discord: `<svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:#5865f2;"><path d="M20.3 4.4a19.7 19.7 0 0 0-4.9-1.5.1.1 0 0 0-.1 0c-.2.4-.4.9-.6 1.2a18.3 18.3 0 0 0-5.5 0c-.2-.4-.4-.9-.6-1.2a.1.1 0 0 0-.1 0 19.7 19.7 0 0 0-4.9 1.5C.5 9-.3 13.6.1 18.1c0 0 0 .1.1.1a19.9 19.9 0 0 0 6 3 .1.1 0 0 0 .1 0c.5-.6.9-1.3 1.2-2a.1.1 0 0 0 0-.1c-.7-.2-1.3-.5-1.9-.9a.1.1 0 0 1 0-.1l.4-.3h.1c3.9 1.8 8.2 1.8 12.1 0h.1l.4.3a.1.1 0 0 1 0 .1c-.6.4-1.2.7-1.9.9a.1.1 0 0 0 0 .1c.4.7.8 1.4 1.2 2a.1.1 0 0 0 .1 0 20 20 0 0 0 6-3 .1.1 0 0 0 .1-.1c.4-5.2-.9-9.7-3.6-13.7ZM8 15.3c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Zm8 0c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Z"/></svg>`,
+        Slack: `<svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:#e01e5a;"><path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/></svg>`,
+        Jira: '🔷',
+        Trello: '📋',
+        'Google Docs': '📁',
+        'VS Code Web': '💻',
+        ChatGPT: '🤖',
+        Supabase: '⚡'
+      };
+
+      const PRESET_DB = {
+        'Figma': { name: 'Figma', desc: 'UI/UX 디자인 및 프로토타입 협업', url: 'https://www.figma.com', loginUrl: 'https://www.figma.com/login', icon: SVG_ICONS.Figma },
+        'GitHub': { name: 'GitHub', desc: '소스 코드 버전 관리 및 Issue 추적', url: 'https://github.com', loginUrl: 'https://github.com/login', icon: SVG_ICONS.GitHub },
+        'Notion': { name: 'Notion', desc: '팀 문서, 회의록 및 지식 베이스 관리', url: 'https://www.notion.so', loginUrl: 'https://www.notion.so/login', icon: SVG_ICONS.Notion },
+        'Discord': { name: 'Discord', desc: '팀 음성 대화 및 실시간 커뮤니케이션', url: 'https://discord.com/app', loginUrl: 'https://discord.com/login', icon: SVG_ICONS.Discord },
+        'Slack': { name: 'Slack', desc: '업무용 메신저 및 알림 연동', url: 'https://slack.com', loginUrl: 'https://slack.com/signin', icon: SVG_ICONS.Slack },
+        'Jira': { name: 'Jira', desc: '애자일 프로젝트 및 스프린트 이슈 관리', url: 'https://jira.atlassian.com', loginUrl: 'https://id.atlassian.com/login', icon: '🔷' },
+        'Trello': { name: 'Trello', desc: '칸반 보드 기반 프로젝트 일정 관리', url: 'https://trello.com', loginUrl: 'https://trello.com/login', icon: '📋' },
+        'Google Docs': { name: 'Google Docs', desc: '실시간 공동 문서 작성 및 협업', url: 'https://docs.google.com', loginUrl: 'https://accounts.google.com', icon: '📁' },
+        'VS Code Web': { name: 'VS Code Web', desc: '브라우저 기반 클라우드 코드 에디터', url: 'https://vscode.dev', loginUrl: 'https://vscode.dev', icon: '💻' },
+        'ChatGPT': { name: 'ChatGPT', desc: 'OpenAI 대화형 AI 어시스턴트', url: 'https://chatgpt.com', loginUrl: 'https://chatgpt.com/auth/login', icon: '🤖' },
+        'Supabase': { name: 'Supabase', desc: '오픈소스 Firebase 대안 실시간 DB', url: 'https://supabase.com', loginUrl: 'https://supabase.com/dashboard/sign-in', icon: '⚡' }
+      };
+
+      // 워크스페이스 저장소 (기본 5개)
+      let workspaceTools = [
+        PRESET_DB.Figma,
+        PRESET_DB.GitHub,
+        PRESET_DB.Notion,
+        PRESET_DB.Discord,
+        PRESET_DB.Slack
+      ];
+
+      let activeTool = workspaceTools[0]; // Figma 기본 활성
+
+      const cardsGrid = document.getElementById('workspaceCardsGrid');
+      const workingNameLabel = document.getElementById('currentWorkingName');
+      const liveHeaderIcon = document.getElementById('liveHeaderIcon');
+      const liveHeaderTitle = document.getElementById('liveHeaderTitle');
+      const liveHeaderDesc = document.getElementById('liveHeaderDesc');
+      const liveLoginBtnText = document.getElementById('liveLoginBtnText');
+      const liveOfficialLoginBtn = document.getElementById('liveOfficialLoginBtn');
+      const liveOpenNewTabBtn = document.getElementById('liveOpenNewTabBtn');
+      const liveQuickPillsRow = document.getElementById('liveQuickPillsRow');
+      const liveUrlInput = document.getElementById('liveUrlInput');
+      const liveUrlGoBtn = document.getElementById('liveUrlGoBtn');
+      const liveUrlRefreshBtn = document.getElementById('liveUrlRefreshBtn');
+      const liveBrowserFrame = document.getElementById('liveBrowserFrame');
+      const liveMockupOverlay = document.getElementById('liveMockupOverlay');
+
+      // 렌더링 함수
+      function renderWorkspace() {
+        if (!activeTool) activeTool = workspaceTools[0] || PRESET_DB.Figma;
+
+        // 1. 현재 작업 라벨
+        if (workingNameLabel) workingNameLabel.textContent = activeTool.name;
+
+        // 2. 카드 목록 렌더링
+        if (cardsGrid) {
+          cardsGrid.innerHTML = '';
+          workspaceTools.forEach(tool => {
+            const isWorking = tool.name === activeTool.name;
+            const card = document.createElement('div');
+            card.className = `ws-tool-card ${isWorking ? 'active' : ''}`;
+            
+            const iconHtml = (typeof tool.icon === 'string' && tool.icon.startsWith('<svg'))
+              ? tool.icon
+              : `<span>${tool.icon || '📌'}</span>`;
+
+            card.innerHTML = `
+              <div class="ws-card-top-row">
+                <div class="ws-card-icon-box">${iconHtml}</div>
+                <div class="ws-card-info">
+                  <h4 class="ws-card-name">${tool.name}</h4>
+                  <p class="ws-card-desc">${tool.desc || ''}</p>
+                </div>
+              </div>
+              <button type="button" class="ws-card-close-btn" title="워크스페이스에서 제거">✕</button>
+              <div class="ws-card-actions">
+                <button type="button" class="ws-card-work-btn ${isWorking ? 'active' : 'inactive'}">
+                  ${isWorking ? '● 작업 중' : '작업하기'}
+                </button>
+                <a href="${tool.loginUrl || tool.url}" target="_blank" rel="noopener noreferrer" class="ws-card-login-btn">
+                  로그인 ↗
+                </a>
+              </div>
+            `;
+
+            // 카드 클릭 및 작업하기 클릭 시 활성화
+            card.addEventListener('click', (e) => {
+              if (e.target.classList.contains('ws-card-close-btn') || e.target.closest('.ws-card-login-btn')) return;
+              setActiveTool(tool);
+            });
+
+            // 제거 버튼
+            card.querySelector('.ws-card-close-btn').addEventListener('click', (e) => {
+              e.stopPropagation();
+              removeTool(tool.name);
+            });
+
+            cardsGrid.appendChild(card);
+          });
+        }
+
+        // 3. 라이브 작업창 헤더 및 버튼 갱신
+        if (liveHeaderIcon) {
+          liveHeaderIcon.innerHTML = (typeof activeTool.icon === 'string' && activeTool.icon.startsWith('<svg'))
+            ? activeTool.icon
+            : `<span>${activeTool.icon || '📌'}</span>`;
+        }
+        if (liveHeaderTitle) liveHeaderTitle.textContent = `${activeTool.name} 라이브 작업창`;
+        if (liveHeaderDesc) liveHeaderDesc.textContent = activeTool.desc || '통합 워크스페이스 라이브 연결';
+        if (liveLoginBtnText) liveLoginBtnText.textContent = `${activeTool.name} 로그인 페이지`;
+        if (liveUrlInput) liveUrlInput.value = activeTool.url || 'https://www.google.com';
+
+        // 4. 라이브 퀵 스위치 필 탭
+        if (liveQuickPillsRow) {
+          liveQuickPillsRow.innerHTML = '';
+          workspaceTools.forEach(tool => {
+            const isPillActive = tool.name === activeTool.name;
+            const pill = document.createElement('button');
+            pill.type = 'button';
+            pill.className = `live-quick-pill ${isPillActive ? 'active' : ''}`;
+            
+            const pillIcon = (typeof tool.icon === 'string' && tool.icon.startsWith('<svg'))
+              ? tool.icon
+              : `<span>${tool.icon || '📌'}</span>`;
+
+            pill.innerHTML = `${pillIcon} <span>${tool.name}</span>`;
+            pill.addEventListener('click', () => setActiveTool(tool));
+            liveQuickPillsRow.appendChild(pill);
+          });
+        }
+
+        // 5. 뷰어 화면 렌더링
+        renderLiveViewport();
+      }
+
+      function setActiveTool(tool) {
+        activeTool = tool;
+        renderWorkspace();
+      }
+
+      function removeTool(name) {
+        if (workspaceTools.length <= 1) {
+          alert('최소 1개 이상의 프로그램이 워크스페이스에 유지되어야 합니다.');
+          return;
+        }
+        workspaceTools = workspaceTools.filter(t => t.name !== name);
+        if (activeTool.name === name) {
+          activeTool = workspaceTools[0];
+        }
+        renderWorkspace();
+      }
+
+      function addToolToWorkspace(toolObj) {
+        const exists = workspaceTools.find(t => t.name.toLowerCase() === toolObj.name.toLowerCase());
+        if (exists) {
+          setActiveTool(exists);
+        } else {
+          workspaceTools.push(toolObj);
+          setActiveTool(toolObj);
+        }
+        renderWorkspace();
+      }
+
+      // 라이브 뷰포트 렌더링 (스크린샷 2 GitHub 완벽 지원 및 범용 Mockup/Iframe)
+      function renderLiveViewport() {
+        if (!liveMockupOverlay) return;
+
+        if (activeTool.name === 'GitHub') {
+          // [스크린샷 2 완벽 재현] GitHub 인터랙티브 네비게이션 & 드롭다운
+          liveBrowserFrame.style.display = 'none';
+          liveMockupOverlay.style.display = 'flex';
+          liveMockupOverlay.innerHTML = `
+            <div class="github-mock-view">
+              <header class="github-mock-navbar">
+                <div class="github-mock-logo">
+                  <svg height="32" viewBox="0 0 16 16" width="32" fill="#fff"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+                </div>
+                <nav class="github-mock-links">
+                  <span>Platform ▾</span>
+                  <span>Solutions ▾</span>
+                  <span>Resources ▾</span>
+                  <span style="color:#58a6ff; font-weight:700;">Open Source ▾</span>
+                  <span>Enterprise ▾</span>
+                  <span>Pricing</span>
+                </nav>
+                <div class="github-mock-right">
+                  <div class="github-mock-search">
+                    <span>Search</span>
+                    <kbd style="margin-left:auto;background:#21262d;border:1px solid #30363d;padding:1px 5px;border-radius:4px;font-size:11px;">/</kbd>
+                  </div>
+                  <a href="https://github.com/login" target="_blank" rel="noopener noreferrer" class="github-mock-btn-signin" style="text-decoration:none;">Sign in</a>
+                  <a href="https://github.com/signup" target="_blank" rel="noopener noreferrer" class="github-mock-btn-signup" style="text-decoration:none;">Sign up</a>
+                </div>
+              </header>
+
+              <div class="github-mock-body">
+                <div>
+                  <div class="github-mock-section-title">COMMUNITY</div>
+                  <div class="github-mock-items">
+                    <div class="github-mock-item" onclick="window.open('https://github.com/sponsors', '_blank')">
+                      <span>🤍 GitHub Sponsors</span>
+                    </div>
+                    <small style="color:#8b949e;margin-top:-6px;display:block;">Fund open source developers</small>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="github-mock-section-title">PROGRAMS</div>
+                  <div class="github-mock-items">
+                    <div class="github-mock-item" onclick="window.open('https://securitylab.github.com', '_blank')">Security Lab ↗</div>
+                    <div class="github-mock-item">Maintainer Community ↗</div>
+                    <div class="github-mock-item">Accelerator</div>
+                    <div class="github-mock-item">GitHub Stars ↗</div>
+                    <div class="github-mock-item">Archive Program ↗</div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="github-mock-section-title">REPOSITORIES</div>
+                  <div class="github-mock-items">
+                    <div class="github-mock-item" onclick="window.open('https://github.com/topics', '_blank')">Topics</div>
+                    <div class="github-mock-item" onclick="window.open('https://github.com/trending', '_blank')">Trending</div>
+                    <div class="github-mock-item" onclick="window.open('https://github.com/collections', '_blank')">Collections</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        } else if (activeTool.name === 'Figma') {
+          // Figma 작업 화면 (스크린샷 1)
+          liveBrowserFrame.style.display = 'none';
+          liveMockupOverlay.style.display = 'flex';
+          liveMockupOverlay.innerHTML = `
+            <div class="generic-tool-mock-view">
+              <div class="generic-tool-icon-large">
+                ${SVG_ICONS.Figma}
+              </div>
+              <h3 class="generic-mock-heading">Figma 라이브 협업 작업 허브</h3>
+              <p class="generic-mock-desc">
+                UI/UX 디자인, 프로토타입 공유 및 팀 협업 캔버스에 즉시 연결됩니다.<br>
+                보안 규정에 따라 공식 로그인 및 대형 프로젝트는 전용 새 탭 또는 임베드 뷰어로 실행됩니다.
+              </p>
+              <div class="generic-mock-actions">
+                <button type="button" class="btn-live-newtab" onclick="window.open('${activeTool.loginUrl}', '_blank')">
+                  🚀 Figma 공식 로그인 & 작업창 열기
+                </button>
+                <button type="button" class="btn-live-login" onclick="window.open('${activeTool.url}', '_blank')">
+                  새 탭으로 전체 화면 열기 ↗
+                </button>
+              </div>
+            </div>
+          `;
+        } else {
+          // 기타 일반 툴 (Notion, Discord, Slack, Jira 등)
+          liveBrowserFrame.style.display = 'none';
+          liveMockupOverlay.style.display = 'flex';
+          const iconLarge = (typeof activeTool.icon === 'string' && activeTool.icon.startsWith('<svg'))
+            ? activeTool.icon
+            : `<span>${activeTool.icon || '📌'}</span>`;
+
+          liveMockupOverlay.innerHTML = `
+            <div class="generic-tool-mock-view">
+              <div class="generic-tool-icon-large">
+                ${iconLarge}
+              </div>
+              <h3 class="generic-mock-heading">${activeTool.name} 라이브 작업 허브</h3>
+              <p class="generic-mock-desc">
+                ${activeTool.desc || '클라우드 협업 도구에 연결되었습니다.'}<br>
+                아래 버튼을 눌러 공식 웹 작업창을 열거나 주소창에서 바로 이동하세요.
+              </p>
+              <div class="generic-mock-actions">
+                <button type="button" class="btn-live-newtab" onclick="window.open('${activeTool.loginUrl || activeTool.url}', '_blank')">
+                  🚀 ${activeTool.name} 공식 로그인 & 작업창 열기
+                </button>
+                <button type="button" class="btn-live-login" onclick="window.open('${activeTool.url}', '_blank')">
+                  새 탭으로 열기 ↗
+                </button>
+              </div>
+            </div>
+          `;
+        }
+      }
+
+      // 공식 로그인 버튼
+      if (liveOfficialLoginBtn) {
+        liveOfficialLoginBtn.addEventListener('click', () => {
+          if (activeTool) {
+            window.open(activeTool.loginUrl || activeTool.url, '_blank');
+          }
+        });
+      }
+
+      // 새 탭으로 열기 버튼
+      if (liveOpenNewTabBtn) {
+        liveOpenNewTabBtn.addEventListener('click', () => {
+          const currentUrl = (liveUrlInput && liveUrlInput.value) ? liveUrlInput.value : activeTool?.url;
+          if (currentUrl) window.open(currentUrl, '_blank');
+        });
+      }
+
+      // URL 이동 및 새로고침
+      function navigateUrl() {
+        let url = liveUrlInput.value.trim();
+        if (!url) return;
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+          url = 'https://' + url;
+          liveUrlInput.value = url;
+        }
+
+        // iframe 로드 시도
+        liveMockupOverlay.style.display = 'none';
+        liveBrowserFrame.style.display = 'block';
+        liveBrowserFrame.src = url;
+      }
+
+      if (liveUrlGoBtn) liveUrlGoBtn.addEventListener('click', navigateUrl);
+      if (liveUrlInput) {
+        liveUrlInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') navigateUrl();
+        });
+      }
+      if (liveUrlRefreshBtn) {
+        liveUrlRefreshBtn.addEventListener('click', () => {
+          renderLiveViewport();
+        });
+      }
+
+      // 퀵 칩 버튼 클릭 핸들러
+      document.querySelectorAll('.quick-chip-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const presetKey = btn.getAttribute('data-preset');
+          if (PRESET_DB[presetKey]) {
+            addToolToWorkspace(PRESET_DB[presetKey]);
+          } else {
+            addToolToWorkspace({
+              name: presetKey,
+              desc: `${presetKey} 클라우드 협업 도구`,
+              url: `https://www.google.com/search?q=${encodeURIComponent(presetKey)}`,
+              loginUrl: `https://www.google.com/search?q=${encodeURIComponent(presetKey + ' login')}`,
+              icon: '📌'
+            });
+          }
+        });
+      });
+
+      // 검색창 엔터 핸들러
+      const wsSearchInput = document.getElementById('wsProgramSearchInput');
+      if (wsSearchInput) {
+        wsSearchInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            const query = wsSearchInput.value.trim();
+            if (!query) return;
+            
+            // 프리셋에 존재하는지 확인
+            const matchedKey = Object.keys(PRESET_DB).find(k => k.toLowerCase() === query.toLowerCase());
+            if (matchedKey) {
+              addToolToWorkspace(PRESET_DB[matchedKey]);
+            } else {
+              addToolToWorkspace({
+                name: query,
+                desc: `${query} 워크스페이스 작업창`,
+                url: query.startsWith('http') ? query : `https://${query}`,
+                loginUrl: query.startsWith('http') ? query : `https://${query}`,
+                icon: '⚡'
+              });
+            }
+            wsSearchInput.value = '';
+          }
+        });
+      }
+
+      // 직접 프로그램 등록 모달
+      const customToolModal = document.getElementById('customToolModal');
+      const openCustomModalBtn = document.getElementById('openCustomToolModalBtn');
+      const closeCustomModalBtn = document.getElementById('closeCustomToolModalBtn');
+      const cancelCustomModalBtn = document.getElementById('cancelCustomToolModalBtn');
+      const submitCustomModalBtn = document.getElementById('submitCustomToolModalBtn');
+
+      if (openCustomModalBtn) openCustomModalBtn.addEventListener('click', () => customToolModal.style.display = 'flex');
+      if (closeCustomModalBtn) closeCustomModalBtn.addEventListener('click', () => customToolModal.style.display = 'none');
+      if (cancelCustomModalBtn) cancelCustomModalBtn.addEventListener('click', () => customToolModal.style.display = 'none');
+
+      if (submitCustomModalBtn) {
+        submitCustomModalBtn.addEventListener('click', () => {
+          const name = document.getElementById('modalToolName').value.trim();
+          let url = document.getElementById('modalToolUrl').value.trim();
+          const desc = document.getElementById('modalToolDesc').value.trim() || `${name} 협업 도구`;
+          const icon = document.getElementById('modalToolIcon').value.trim() || '⚡';
+
+          if (!name) return alert('프로그램 이름을 입력하세요.');
+          if (!url) url = `https://${name.toLowerCase().replace(/\s+/g, '')}.com`;
+          if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
+
+          addToolToWorkspace({
+            name,
+            desc,
+            url,
+            loginUrl: url,
+            icon
+          });
+
+          customToolModal.style.display = 'none';
+          document.getElementById('modalToolName').value = '';
+          document.getElementById('modalToolUrl').value = '';
+          document.getElementById('modalToolDesc').value = '';
+        });
+      }
+
+      // ==========================================
+      // 5. 하단 빠른 메모 & 스마트 요약 (스크린샷 3)
+      // ==========================================
+      const quickNoteForm = document.getElementById('quickNoteForm');
+      const noteTitleInput = document.getElementById('quickNoteTitleInput');
+      const noteContentInput = document.getElementById('quickNoteContentInput');
+      const noteListContainer = document.getElementById('quickNoteListContainer');
+      const emptyNoteBox = document.getElementById('emptyNoteBox');
+
+      const NOTE_STORAGE_KEY = 'prain_dashboard_quick_notes';
+      let quickNotes = JSON.parse(localStorage.getItem(NOTE_STORAGE_KEY) || '[]');
+
+      function renderNotes() {
+        if (!noteListContainer) return;
+        noteListContainer.innerHTML = '';
+
+        if (!quickNotes.length) {
+          noteListContainer.innerHTML = `
+            <div class="empty-dashed-box" id="emptyNoteBox">
+              아직 작성된 메모가 없습니다.
+            </div>
+          `;
+          return;
+        }
+
+        quickNotes.forEach((n, idx) => {
+          const item = document.createElement('div');
+          item.className = 'quick-note-card-item';
+          item.innerHTML = `
+            <div class="quick-note-item-content">
+              <b>${n.title || '제목 없음'}</b>
+              <p>${n.content || ''}</p>
+              <small>${n.date || ''}</small>
+            </div>
+            <button type="button" class="quick-note-card-del-btn" title="삭제">×</button>
+          `;
+
+          item.querySelector('.quick-note-card-del-btn').addEventListener('click', () => {
+            quickNotes.splice(idx, 1);
+            localStorage.setItem(NOTE_STORAGE_KEY, JSON.stringify(quickNotes));
+            renderNotes();
+          });
+
+          noteListContainer.appendChild(item);
+        });
+      }
+
+      if (quickNoteForm) {
+        quickNoteForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const title = noteTitleInput.value.trim();
+          const content = noteContentInput.value.trim();
+          if (!title && !content) return alert('메모 제목 또는 내용을 입력하세요.');
+
+          quickNotes.unshift({
+            title: title || '새 메모',
+            content,
+            date: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
+          });
+
+          localStorage.setItem(NOTE_STORAGE_KEY, JSON.stringify(quickNotes));
+          noteTitleInput.value = '';
+          noteContentInput.value = '';
+          renderNotes();
+        });
+      }
+
+      // 회의록 및 AI 요약 연동
+      const recentMeetingText = document.getElementById('recentMeetingText');
+      if (recentMeetingText) {
+        // 기존 회의록 탭 데이터 연동
+        recentMeetingText.textContent = '8/6 기획 회의 (42분 · 카테고리 5개 확정 논의 완료)';
+      }
+
+      // 초기 실행
+      renderWorkspace();
+      renderNotes();
+    });
+  </script>
+</body>
+</html>
